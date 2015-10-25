@@ -12,8 +12,7 @@ $(document).ready(function(){
     var allMasteries = {};
     var allChampions = [];
     $.when(resources).done(function(r) {
-        //key = r.apiKey;
-        key = apiKey_tmp;
+        key = r.apiKey;
 
         var url = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/mastery?api_key=' + key;
         var allMasteriesRequest = $.ajax({
