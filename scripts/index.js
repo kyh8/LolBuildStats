@@ -12,7 +12,8 @@ $(document).ready(function(){
     var allMasteries = {};
     var allChampions = [];
     $.when(resources).done(function(r) {
-        key = r.apiKey;
+        //key = r.apiKey;
+        key = apiKey_tmp;
 
         var url = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/mastery?api_key=' + key;
         var allMasteriesRequest = $.ajax({
@@ -97,6 +98,7 @@ $(document).ready(function(){
             for(var summoner in s){
                 console.log(s[summoner].id);
                 var id = s[summoner].id;
+
                 var masteryUrl = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/'+ id + '/masteries?api_key=' + key;
                 var masteriesRequest = $.ajax({
                     url: masteryUrl,
@@ -147,6 +149,66 @@ $(document).ready(function(){
                             landingRactive.set('summonerRank', rank);
                         }
                     }
+                });
+
+                var runes_data = {}; /* static rune data */
+                var runesDataUrl = "https://global.api.pvp.net/api/lol/static-data/na/v1.2/rune?runeListData=stats&api_key="+key;
+                var runeDataRequest = $.ajax({
+                    url: runesDataUrl,
+                    dataType: 'json',
+                    type: "GET"
+                });
+
+                $.when(runeDataRequest).done(function(rune_d){
+
+                    for(var prop in rune_d.data){
+                        var stats = {};
+                        stats = rune_d.data[prop].stats;
+                        runes_data[rune_d.data[prop].id] = stats;
+                    }
+
+                    var runesUrl = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/' + id + '/runes?api_key=' + key;
+                    var runesRequest = $.ajax({
+                        url: runesUrl,
+                        dataType: 'json',
+                        type: "GET"
+                    });
+
+
+
+                    $.when(runesRequest).done(function(runes_j){
+                        //console.log(runes_j);
+                        var runes = runes_j[id].pages;
+                        var rune_pages = [];
+
+
+                        for(var i = 0; i < runes.length; i++){
+                            var rune_stats = {};
+
+                            for(var j = 0; j < runes[i].slots.length; j++){
+                                var stats = runes_data[runes[i].slots[j].runeId];
+                                for (var prop in stats){
+                                    console.log("prop: " + prop);
+                                    if (rune_stats.hasOwnProperty(prop)){
+                                        rune_stats[prop] += stats[prop];
+                                    } else {
+                                        rune_stats[prop] = stats[prop];
+                                    }
+                                }
+                            }
+
+                            var rune_page = {
+                                "name" : "",
+                                "stats" : {}
+                            }
+
+                            rune_page.name = runes[i].name;
+                            rune_page.stats = rune_stats;
+
+                            rune_pages.push(rune_page);
+                        }
+
+                    });
                 });
             }
         });
