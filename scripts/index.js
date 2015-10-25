@@ -150,7 +150,9 @@ $(document).ready(function(){
                     }
                 });
 
-                var runes_data = {}; /* static rune data */
+                var runes_data = {}; /* static rune data  */
+                var rune_pages = []; /* page name + stats */
+
                 var runesDataUrl = "https://global.api.pvp.net/api/lol/static-data/na/v1.2/rune?runeListData=stats&api_key="+key;
                 var runeDataRequest = $.ajax({
                     url: runesDataUrl,
@@ -176,9 +178,7 @@ $(document).ready(function(){
 
 
                     $.when(runesRequest).done(function(runes_j){
-                        //console.log(runes_j);
                         var runes = runes_j[id].pages;
-                        var rune_pages = [];
 
 
                         for(var i = 0; i < runes.length; i++){
@@ -206,6 +206,7 @@ $(document).ready(function(){
 
                             rune_pages.push(rune_page);
                         }
+                        console.log(rune_pages);
 
                     });
                 });
