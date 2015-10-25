@@ -3,7 +3,10 @@ $(document).ready(function(){
         el:"#landing",
         template:"#landing-template",
         data:{
-            region:"NA"
+            region:"NA",
+            masteriesOrder:['Offense', 'Defense', 'Utility'],
+            popupWindow: 'none',
+            popupActive: false
         }
     });
     var key;
@@ -11,6 +14,7 @@ $(document).ready(function(){
     var resources = $.getJSON('messages/resources.json');
     var allMasteries = {};
     var allChampions = [];
+    var masteryTree = {};
     $.when(resources).done(function(r) {
         key = r.apiKey;
 
@@ -18,11 +22,49 @@ $(document).ready(function(){
         var allMasteriesRequest = $.ajax({
             url: url,
             dataType: 'json',
-            type: "GET"
+            type: "GET",
+            data:{
+                masteryListData:"image,masteryTree,ranks,tree"
+            }
         });
 
         $.when(allMasteriesRequest).done(function(m){
             allMasteries = m.data;
+            console.log(allMasteries);
+            masteryTree = m.tree;
+            console.log(masteryTree);
+            var trees = {};
+            for(var type in masteryTree){
+                console.log(type);
+                var tree = [];
+                var rows = masteryTree[type];
+                rows.forEach(function(r){
+                    var row = [];
+                    r.masteryTreeItems.forEach(function(item){
+                        if(item){
+                            row.push({
+                                description: allMasteries[item.masteryId].description,
+                                id: allMasteries[item.masteryId].id,
+                                image: 'http://ddragon.leagueoflegends.com/cdn/5.20.1/img/mastery/' + allMasteries[item.masteryId].image.full,
+                                masteryTree: allMasteries[item.masteryId].masteryTree,
+                                name: allMasteries[item.masteryId].name,
+                                totalPoints: allMasteries[item.masteryId].ranks,
+                                points: 0
+                            });
+                            console.log(allMasteries[item.masteryId].image.full);
+                        } else{
+                            row.push(null);
+                        }
+                    });
+                    tree.push(row);
+                });
+                console.log(tree);
+                trees[type] = tree;
+            }
+            console.log(trees);
+            var order = [trees['Offense'], trees['Defense'], trees['Utility']];
+            landingRactive.set('masteryTrees', order);
+            landingRactive.set('totalTreePoints', [0,0,0]);
         });
 
         var champsUrl = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=image&api_key=' + key;
@@ -33,8 +75,6 @@ $(document).ready(function(){
         });
 
         $.when(champsRequest).done(function(champions){
-            console.log(champions.data.Rengar);
-            var championNames = [];
             for(var key in champions.data){
                 allChampions.push({
                     name:champions.data[key].name,
@@ -51,7 +91,6 @@ $(document).ready(function(){
             var rowCount = 0;
             var championDisplay = [];
             allChampions.forEach(function(champ){
-                console.log(champ);
                 champRow.push(champ);
                 rowCount++;
                 if(rowCount == CHAMPS_PER_ROW){
@@ -66,12 +105,19 @@ $(document).ready(function(){
     });
 
     landingRactive.on('showChampSelect', function(){
-        landingRactive.set('champSelectActive', true);
+        landingRactive.set('popupActive', true);
+        landingRactive.set('popupWindow', 'champSelect');
+    });
+
+    landingRactive.on('showMasteryPage', function(){
+        landingRactive.set('popupActive', true);
+        landingRactive.set('popupWindow', 'masteriesPreview')
     });
 
     landingRactive.on('selectChampion', function(event, champion){
         landingRactive.set('selectedChampion', champion);
-        landingRactive.set('champSelectActive', false);
+        landingRactive.set('popupActive', false);
+        landingRactive.set('popupWindow', 'none');
     });
 
     landingRactive.on('getSummoner', function(){

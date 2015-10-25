@@ -74,10 +74,78 @@
     #champIcon:hover{
         box-shadow:0 0 5px 0 white;
     }
+
+    .masteryTree{
+        /*border:1px solid white;*/
+        background-color:rgba(0,0,0,0.5);
+        height:100%;
+        width:225px;
+        border-radius:20px;
+    }
+
+    .pageSelection{
+        background-color:rgba(0,0,0,0.7);
+        border-radius:10px;
+        border:1px solid white;
+        width:190px;
+        height:80px;
+        color:white;
+    }
+
+    .selectedRunePage{
+        width:160px;
+        background-color:white;
+        height:25px;
+        border:1px solid gray;
+        position:relative;
+        cursor:pointer;
+        margin-top:10px;
+        display:inline-block;
+        vertical-align:middle;
+    }
+
+    .selectedRunePage:after{
+        content: "";
+        width: 0;
+        height: 0;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        margin-top: -3px;
+        border-width: 4px 4px 0 4px;
+        border-style: solid;
+        border-color: grey transparent;
+    }
+
+    .selectedMasteryPage{
+        width:120px;
+        background-color:white;
+        height:25px;
+        border:1px solid gray;
+        position:relative;
+        cursor:pointer;
+        margin-top:10px;
+        display:inline-block;
+        vertical-align:middle;
+    }
+
+    .selectedMasteryPage:after{
+        content: "";
+        width: 0;
+        height: 0;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        margin-top: -3px;
+        border-width: 4px 4px 0 4px;
+        border-style: solid;
+        border-color: grey transparent;
+    }
 </style>
 <body id="page-body" style="background-image:url(http://na.leagueoflegends.com/sites/default/files/upload/art/teambuilder-wallpaper.jpg)">
     <script id="landing-template" type="type/ractive">
-        <div align="center" style="{{champSelectActive ? '' : 'display:none;'}} position:absolute; margin-top:-10px; width:100%; height:100%; background-color:rgba(0,0,0,0.7)">
+        <div align="center" style="{{popupActive ? '' : 'display:none;'}} position:absolute; z-index:9999; margin-top:-10px; width:100%; height:100%; background-color:rgba(0,0,0,0.7)">
+            {{#if popupWindow == 'champSelect'}}
             <div style="margin-top:150px; background-color:black; box-shadow:0 0 15px 0 white; border-radius:10px; padding-bottom: 10px; padding-top: 10px; width: 550px;">
                 <div style="background-color:black; border:1px solid white; border-radius:5px; padding:5px; width: 520px; height: 320px; max-height:320px; overflow:hidden; overflow-y:scroll;">
                     <table cellpadding=5>
@@ -95,6 +163,44 @@
                     </table>
                 </div>
             </div>
+            {{/if}}
+            {{#if popupWindow == 'masteriesPreview'}}
+            <div style="margin-top:150px; position:relative; width:700px; height:405px; background:background: no-repeat center center fixed;-webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-image:url(http://media-copper.cursecdn.com/attachments/29/415/masteries-background.jpg)">
+                <table cellpadding=0 width=100% height=100%>
+                    <tr>
+                        {{#each masteryTrees:i}}
+                        <td>
+                            <div class="masteryTree" style="{{i == 0 ? 'margin-left: 3px;' : ''}};margin-top:-10px;" align="center">
+                                <div style="margin-top:10px;">
+                                    <table cellpadding=5>
+                                    {{#each masteryTrees[i]: j}}
+                                        <tr>
+                                        {{#each masteryTrees[i][j]}}
+                                            <td>
+                                                <div style="width:40px; height:40px; position:relative; border-radius:5px; {{this ? 'border:1px solid gold;' : ''}}">
+                                                    {{#if this}}
+                                                        <img src="{{image}}" width=40 height=40 style="cursor:pointer; border-radius:5px;">
+                                                        <div align="center" style="position:absolute; bottom:-1px; right:-1px; border-bottom-right-radius:5px; background-color:black; color:white; border:1px solid gold; width:20px; height:10px; font-size:9px;">
+                                                            {{points}}/{{totalPoints}}
+                                                        </div>
+                                                    {{/if}}
+                                                </div>
+                                            </td>
+                                        {{/each}}
+                                        </tr>
+                                    {{/each}}
+                                    </table>
+                                </div>
+                            </div>
+                            <div style="font-size:18px; margin-left:20px; position:absolute; bottom:20px; color:white;">
+                                {{masteriesOrder[i]}}: {{totalTreePoints[i]}}
+                            </div>
+                        </td>
+                        {{/each}}
+                    </tr>
+                </table>
+            </div>
+            {{/if}}
         </div>
         <div align="center">
             <div style="margin-top:10px;">
@@ -103,7 +209,7 @@
                 </div>
                 <div style="display:inline-block; vertical-align:top;">
                     <form on-submit="getSummoner">
-                        <input id="summonerField" value="{{summonerName}}" placeholder="Summoner Name">
+                        <input id="summonerField" autocomplete="off" value="{{summonerName}}" placeholder="Summoner Name">
                     </form>
                 </div>
                 <div on-click="getSummoner" style="display:inline-block; vertical-align:top; cursor:pointer; border-radius: 5px; width:50px; padding-top:5px; padding-bottom:6px; background-color:lightblue; color:white;">
@@ -113,7 +219,7 @@
                     {{summonerRank}}
                 </div>
             </div>
-            <div style="margin-top:10px; width:300px; padding:10px; border-radius:10px; background-color: rgba(0,0,0,0.7); color:white;">
+            <div style="margin-top:10px; width:300px; padding:10px; border:1px solid white; border-radius:10px; background-color: rgba(0,0,0,0.7); color:white;">
                 <div id="champIcon" on-click="showChampSelect" style="cursor:pointer; display:inline-block; vertical-align:middle; {{!selectedChampion ? 'background-color:gray' : ''}}; width:70px; height:70px; border-radius:10px; border: 1px solid black;">
                     {{#if selectedChampion}}
                         <img src="{{selectedChampion.image}}" style="border-radius:10px;" width=70 height=70>
@@ -128,6 +234,31 @@
                     <div style="font-size:30px;">{{selectedChampion.name}}</div>
                     <div style="font-size:18px;">{{selectedChampion.title}}</div>
                 </div>
+            </div>
+            <div>
+            <table cellpadding=10>
+                <tr>
+                    <td>
+                        <div class="pageSelection" align="center">
+                            <div style="margin-top:10px;">Runes</div>
+                            <div align="left" class="selectedRunePage">
+                                <div style="padding-top:5px; padding-bottom:5px; vertical-align:top; font-size: 14px; color:black; margin-left:5px;">Rune Page</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="pageSelection" align="center">
+                            <div style="margin-top:10px;">Masteries</div>
+                            <div align="left" class="selectedMasteryPage">
+                                <div style="padding-top:5px; padding-bottom:5px; vertical-align:top; font-size: 14px; color:black; margin-left:5px;">Mastery Page</div>
+                            </div>
+                            <div on-click="showMasteryPage" style="display:inline-block; vertical-align:middle; cursor:pointer; margin-left:7px; margin-top:10px; border-radius:5px; border:1px solid white; width:25px; height:25px; background-color:lightblue; ">
+                                <img src="http://www.clker.com/cliparts/n/U/H/1/H/u/search-icon-white-one-md.png" width=13 height=13 style="margin-top:6px;">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
             </div>
         </div>
     </script>
