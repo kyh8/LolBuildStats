@@ -15,9 +15,18 @@ $(document).ready(function(){
     var allMasteries = {};
     var allChampions = [];
     var masteryTree = {};
+
+
+    /* stats: */
+    var stat_totals = [];   /* total stats, with level factored in */
+    var r_m_stats = [];     /* result of mastery data + rune page data */
+    var rune_pages = [];    /* page name + stats */
+
+
+
     $.when(resources).done(function(r) {
         key = r.apiKey;
-
+        console.log(key);
         var url = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/mastery?api_key=' + key;
         var allMasteriesRequest = $.ajax({
             url: url,
@@ -197,7 +206,6 @@ $(document).ready(function(){
                 });
 
                 var runes_data = {}; /* static rune data  */
-                var rune_pages = []; /* page name + stats */
 
                 var runesDataUrl = "https://global.api.pvp.net/api/lol/static-data/na/v1.2/rune?runeListData=stats&api_key="+key;
                 var runeDataRequest = $.ajax({
