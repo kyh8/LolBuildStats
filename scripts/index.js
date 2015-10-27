@@ -111,6 +111,48 @@ $(document).ready(function(){
             championDisplay.push(champRow);
             landingRactive.set('champions', championDisplay);
         });
+
+        var itemsUrl = "https://global.api.pvp.net/api/lol/static-data/na/v1.2/item?itemListData=gold,image,sanitizedDescription,stats,tags&api_key=" + key;
+        var itemsRequest = $.ajax({
+            url: itemsUrl,
+            dataType: 'json',
+            type: "GET"
+        });
+
+        var allItems = [];
+        var ITEM_PER_ROW = 5;
+
+        $.when(itemsRequest).done(function (items){
+            for(var item in items.data){
+                allItems.push({
+                    name:items.data[item].name,
+                    id:items.data[item].id,
+                    image:'http://ddragon.leagueoflegends.com/cdn/5.21.1/img/item/' + items.data[item].image.full,
+                    gold:items.data[item].gold.total,
+                    stats:items.data[item].stats,
+                    tags: items.data[item].tags,
+                    description: items.data[item].sanitizedDescription
+                })
+            }
+
+            var itemRow = [];
+            var rowCount = 0;
+            var itemDisplay = [];
+            allItems.sort(function(a,b){
+                return a.name.localeCompare(b.name);
+            });
+
+            allItems.forEach(function(item){
+                itemRow.push(item);
+                rowCount++;
+                if(rowCount == ITEM_PER_ROW){
+                    itemDisplay.push(itemRow);
+                    itemRow = [];
+                    rowCount = 0;
+                }
+            })
+        })
+
     });
 
     landingRactive.on('showChampSelect', function(){
@@ -228,7 +270,6 @@ $(document).ready(function(){
                         dataType: 'json',
                         type: "GET"
                     });
-
 
 
                     $.when(runesRequest).done(function(runes_j){
