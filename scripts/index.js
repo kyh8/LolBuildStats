@@ -171,13 +171,11 @@ $(document).ready(function(){
     });
 
     landingRactive.on('showChampSelect', function(){
-        landingRactive.set('popupActive', true);
-        landingRactive.set('popupWindow', 'champSelect');
+        openPopup(landingRactive, 'champSelect');
     });
 
     landingRactive.on('showMasteryPage', function(){
-        landingRactive.set('popupActive', true);
-        landingRactive.set('popupWindow', 'masteriesPreview');
+        openPopup(landingRactive, 'masteriesPreview');
     });
 
     landingRactive.on('selectChampion', function(event, champion){
@@ -201,7 +199,6 @@ $(document).ready(function(){
             type: "GET",
             error: function(request, status, errorThrown){
                 if(errorThrown == 'Not Found'){
-                    landingRactive.set('summonerRank', 'Summoner Not Found');
                     landingRactive.set('masteryPages', []);
                     landingRactive.set('selectedMasteryPage', defaultMasteryPage);
                     landingRactive.set('validCurrentSummoner', false);
@@ -299,8 +296,6 @@ $(document).ready(function(){
                         type: "GET"
                     });
 
-
-
                     $.when(runesRequest).done(function(runes_j){
                         var runes = runes_j[id].pages;
 
@@ -340,6 +335,11 @@ $(document).ready(function(){
         return false;
     })
 });
+
+function openPopup(landingRactive, type){
+    landingRactive.set('popupActive', true);
+    landingRactive.set('popupWindow', type);
+}
 
 function closePopup(landingRactive){
     landingRactive.set('popupActive', false);
