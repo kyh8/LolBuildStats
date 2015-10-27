@@ -1,2 +1,4 @@
 # local xml configuration file
-*.xml
+
+.idea/workspace.xml
+
