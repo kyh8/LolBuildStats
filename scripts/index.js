@@ -337,7 +337,7 @@ $(document).ready(function(){
                         dataType: 'json',
                         type: "GET"
                     });
-                    
+
                     $.when(runesRequest).done(function(runes_j){
                         var runes = runes_j[id].pages;
 
@@ -386,4 +386,54 @@ function openPopup(landingRactive, type){
 function closePopup(landingRactive){
     landingRactive.set('popupActive', false);
     landingRactive.set('popupWindow', 'none');
+}
+
+/*
+    CurrentLevel = level selected from scroll bar
+
+    CurrentMasteryPage = current selected mastery page with id, id, and # of ranks, points.
+    CurrentRunePage = current selected rune page name, name and stats, stats.
+
+    CurrentItems = listOfItemsById
+
+    CurrentItemStats = stats from the items
+    CurrentMasteryStats = stats from the mastery page
+    CurrentRuneStats = stats from the rune page
+    CurrentChampionStats = based off selected champion
+
+    TotalStats = accumlation of all stats and factors in CurrentLevel
+
+    Note: Whenever one is changed, the whole TotalStats needs be re-calculated
+
+    mastery_stats = the hardcoded stats, must be pulled from resources [r.mastery_stats]
+ */
+
+
+
+
+function processMasteries(m) { /* m is the mastery page to be converted into stats */
+    CurrentMasteryStats = {};  /* erase current stats */
+
+
+    for (var point in m) {
+        for (var i = 0; i < mastery_stats[point.id].stats.length; i++) {
+            if (CurrentMasteryStats.hasOwnProperty(mastery_stats[point.id].stats[i])){
+                CurrentMasteryStats[mastery_stats[point.id].stats[i]] += mastery_stats[point.id].values[i][point.points];
+            } else {
+                CurrentMasteryStats[mastery_stats[point.id].stats[i]] = mastery_stats[point.id].values[i][point.points];
+            }
+        }
+    }
+}
+
+function processRunePage(page){ /* page is the rune page to be converted into stats */
+    CurrentRuneStats = {};      /* erase current stats */
+
+    for (var stat in page.stats){
+        if (CurrentRuneStats.hasOwnProperty(stat)){
+            CurrentRuneStats[stat] += page[stat];
+        } else {
+            CurrentRuneStats[stat] = page[stat];
+        }
+    }
 }
