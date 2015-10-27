@@ -1,6 +1,7 @@
 var defaultMasteryPage = {
     name:'Mastery Page',
-    masteries:[]
+    masteries:[],
+    defaultPage:true
 };
 
 $(document).ready(function(){
@@ -22,7 +23,6 @@ $(document).ready(function(){
     var allMasteries = {};
     var allChampions = [];
     var masteryTree = {};
-
 
     /* stats: */
     var stat_totals = [];   /* total stats, with level factored in */
@@ -172,19 +172,31 @@ $(document).ready(function(){
 
     });
 
-    landingRactive.on('indexTest', function(event){
-        console.log(event);
+    landingRactive.on('indexTest', function(event, object){
+        console.log(object);
     });
 
     $('#masteryPageDropdown').hide();
+    landingRactive.set('suppressed', false);
+    $(document).click(function() {
+        if(!landingRactive.get('suppressed')){
+            if(landingRactive.get('masteryPageSelectorActive')){
+                $('#masteryPageDropdown').hide('blind', 300);
+                landingRactive.set('masteryPageSelectorActive', !landingRactive.get('masteryPageSelectorActive'));
+            }
+        }
+    });
+
     landingRactive.on('selectMasteryPage', function(event, masteryPage){
         console.log(masteryPage);
+        landingRactive.set('suppressed', true);
         $('#masteryPageDropdown').toggle('blind', 300, function(){
             landingRactive.set('masteryPageSelectorActive', !landingRactive.get('masteryPageSelectorActive'));
             if(masteryPage){
                 landingRactive.set('selectedMasteryPage', masteryPage);
             }
 
+            landingRactive.set('suppressed', false);
             console.log(masteryPage.masteries);
             if(!landingRactive.get('masteryPageSelectorActive') && masteryPage.masteries.length > 0){
                 console.log('update mastery page');
@@ -217,7 +229,39 @@ $(document).ready(function(){
     });
 
     landingRactive.on('showMasteryPage', function(){
+        if(landingRactive.get('selectedMasteryPage').defaultPage){
+            return;
+        }
         openPopup(landingRactive, 'masteriesPreview');
+        $('.mastery').tooltip({
+            position: {
+                my:"center top+5",
+                at:"center bottom"
+            },
+            items: "[title]",
+            content: function(){
+                var element = $(this);
+                if(element.is("[title]")){
+                    var text = element.attr("title");
+                    var items = text.split(":");
+                    if(items[4] == "null" || items[4] == undefined){
+                        element.attr("title", "");
+                        return "";
+                    }
+                    var tooltipContent = '<div style="color:gold; font-size:16px;">' + items[0]+ '</div>';
+                    if(items[2] == 0){
+                        tooltipContent += '<div style="color:red">' + 'Rank: ' + items[2] + '/' + items[3] + '</div>'
+                    } else if (items[2] < items[3]){
+                        tooltipContent += '<div style="color:lightgreen">' + 'Rank: ' + items[2] + '/' + items[3] + '</div>'
+                    } else if(items[2] == items[3]){
+                        tooltipContent += '<div style="color:gold">' + 'Rank: ' + items[2] + '/' + items[3] + '</div>'
+                    }
+                    tooltipContent += '<br><div>' + items[1] + '</div>'
+                    return tooltipContent;
+                }
+            },
+            tooltipClass: "mastery-tooltip"
+        });
     });
 
     landingRactive.on('selectChampion', function(event, champion){
@@ -226,8 +270,6 @@ $(document).ready(function(){
     });
 
     landingRactive.on('getSummoner', function(){
-        console.log('getSummoner');
-        console.log(allChampions);
         var summoner = landingRactive.get('summonerName');
 
         landingRactive.set('currentSummoner', summoner);

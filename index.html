@@ -155,6 +155,10 @@
         border-color: grey transparent;
     }
 
+    .selectedMasteryPage.active:after{
+        border-width: 0 4px 4px 4px;
+    }
+
     .masteryPageSelect{
         background-color:white;
         cursor:pointer;
@@ -197,6 +201,26 @@
         padding-top:30px;
         border:1px solid white;
     }
+
+    .ui-tooltip {
+        position: absolute;
+        z-index: 9999;
+        max-width: 200px;
+        padding:10px;
+    }
+
+    .ui-helper-hidden-accessible{
+        display:none;
+    }
+
+    .mastery-tooltip{
+        color:white;
+        background-color:black;
+        border:1px solid white;
+        text-align:left;
+        font-size:12px;
+        border-radius:5px;
+    }
 </style>
 <body id="page-body" style="background-image:url(http://na.leagueoflegends.com/sites/default/files/upload/art/teambuilder-wallpaper.jpg)">
     <script id="landing-template" type="type/ractive">
@@ -208,7 +232,7 @@
             </div>
             {{/if}}
             {{#if popupWindow == 'champSelect'}}
-            <div style="margin-top:150px; position:relative; background-color:black; box-shadow:0 0 15px 0 white; border-radius:10px; padding-bottom: 20px; padding-top: 20px; width: 570px;">
+            <div id="champSelect" style="margin-top:150px; position:relative; background-color:black; box-shadow:0 0 15px 0 white; border-radius:10px; padding-bottom: 20px; padding-top: 20px; width: 570px;">
                 <div id="closePopup" on-click="closePopup" style="top: 3px; right:3px;">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/VisualEditor_-_Icon_-_Close_-_white.svg/768px-VisualEditor_-_Icon_-_Close_-_white.svg.png" width=15 height=15>
                 </div>
@@ -230,7 +254,7 @@
             </div>
             {{/if}}
             {{#if popupWindow == 'masteriesPreview'}}
-            <div style="position:relative; margin-top:150px; padding-top:20px; width: 740px; height:425px; border-radius:10px; background-color:black; box-shadow:0 0 15px 0 white;">
+            <div id="masteriesPreview" style="position:relative; margin-top:150px; padding-top:20px; width: 740px; height:425px; border-radius:10px; background-color:black; box-shadow:0 0 15px 0 white;">
                 <div id="closePopup" on-click="closePopup" style="top: 3px; right:3px;">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/VisualEditor_-_Icon_-_Close_-_white.svg/768px-VisualEditor_-_Icon_-_Close_-_white.svg.png" width=15 height=15>
                 </div>
@@ -246,9 +270,9 @@
                                             <tr>
                                             {{#each masteryTrees[i][j]}}
                                                 <td>
-                                                    <div style="width:40px; height:40px; position:relative; border-radius:5px; {{points == 0 ? 'opacity:0.3;' : ''}} {{this ? 'border:1px solid gold;' : ''}} {{points < totalPoints && points > 0 ? 'border:1px solid lightgreen;' : ''}}">
+                                                    <div class="mastery" title="{{points > 0 ? name +":"+ description[points-1]+":"+points+":"+totalPoints+":"+this : name +":"+ description[0]+":"+points+":"+totalPoints+":"+this}}" style="width:40px; height:40px; position:relative; {{this ? 'cursor:pointer;' : ''}} border-radius:5px; {{points == 0 ? 'opacity:0.3;' : ''}} {{this ? 'border:1px solid gold;' : ''}} {{points < totalPoints && points > 0 ? 'border:1px solid lightgreen;' : ''}}">
                                                         {{#if this}}
-                                                            <img src="{{image}}" width=40 height=40 on-click="indexTest" style="cursor:pointer; border-radius:5px;">
+                                                            <img src="{{image}}" width=40 height=40 on-click="indexTest:{{.}}" style="border-radius:5px;">
                                                             <div align="center" style="position:absolute; color:white; {{points > 0 ? 'color:gold;' : ''}}; {{points < totalPoints && points > 0 ? 'color:lightgreen;' : ''}} bottom:-1px; right:-1px; border-bottom-right-radius:5px; background-color:black; border:1px solid gold; {{points < totalPoints && points > 0 ? 'border-right:1px solid lightgreen; border-bottom: 1px solid lightgreen;' : ''}} width:20px; height:10px; font-size:9px;">
                                                                 {{points}}/{{totalPoints}}
                                                             </div>
@@ -306,7 +330,7 @@
                                 {{#if !selectedChampion}}
                                     <div style="font-size:20px;">Select a Champion...</div>
                                 {{/if}}
-                                <div style="font-size:24px;">{{selectedChampion.name}}</div>
+                                <div style="font-size:24px; font-weight:600;">{{selectedChampion.name}}</div>
                                 <div style="font-size:16px;">{{selectedChampion.title}}</div>
                             </div>
                             </div>
@@ -338,10 +362,10 @@
                                                         {{selectedMasteryPage.name}}
                                                     </div>
                                                 </div>
-                                                <div on-click="showMasteryPage" align="center" style="display:inline-block; vertical-align:middle; cursor:pointer; margin-left:7px; margin-top:3px; border-radius:5px; border:1px solid white; width:25px; height:25px; background-color:lightblue; ">
+                                                <div on-click="showMasteryPage" align="center" style="display:inline-block; vertical-align:middle; cursor:pointer;  {{selectedMasteryPage.defaultPage ? 'opacity:0.5; cursor:default;' : ''}} margin-left:7px; margin-top:3px; border-radius:5px; border:1px solid white; width:25px; height:25px; background-color:lightblue; ">
                                                     <img src="http://www.clker.com/cliparts/n/U/H/1/H/u/search-icon-white-one-md.png" width=13 height=13 style="margin-top:6px;">
                                                 </div>
-                                                <div align="center" id="masteryPageDropdown" class="{{!validCurrentSummoner ? 'error' : ''}}" style="position:absolute; overflow:hidden; overflow-y:auto; max-height:157px; left:15px; font-size:14px; width:140px; background-color:white; color:black; z-index:9999">
+                                                <div align="center" id="masteryPageDropdown" class="{{!validCurrentSummoner ? 'error' : ''}}" style="position:absolute; overflow:hidden; overflow-y:auto; max-height:157px; left:15px; font-size:14px; width:140px; background-color:white; color:black; z-index:999">
                                                     <ul align="center" style="list-style-type:none; padding-left:0px; width:140px; margin:0px;">
                                                         {{#each masteryPages}}
                                                         <li class="masteryPageSelect" align="left" on-click="selectMasteryPage:{{.}}">
