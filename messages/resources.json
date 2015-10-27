@@ -1,5 +1,27 @@
 {
   "apiKey":"5c074d2c-2626-4c9a-943a-9b232006dcb5",
+  "tags": [
+    "CooldownReduction",
+    "Jungle",
+    "Mana",
+    "SpellDamage",
+    "ArmorPenetration",
+    "Damage",
+    "AttackSpeed",
+    "OnHit",
+    "CriticalStrike",
+    "Consumable",
+    "Armor",
+    "Slow",
+    "LifeSteal",
+    "ManaRegen",
+    "Aura",
+    "GoldPer",
+    "Health",
+    "HealthRegen",
+    "Active",
+    "SpellBlock"
+  ],
   "mastery_stats": {
     "4353" :{
       "stats": ["rPercentCooldownMod"],
