@@ -479,3 +479,20 @@ function processRunePage(page){ /* page is the rune page to be converted into st
         }
     }
 }
+
+/* for converting a rune page into readable */
+/* stats_english = r.stat_english */
+function convertRunePage(p) {
+    RuneDisplayPage = [];
+    RuneDisplay = [];
+    for (var page in p) {
+        RuneDisplayPage.push(page.name);
+        for (var stats in p.rune_stats) {
+            var english = stats_english[stats];
+            var line = "+" + p.rune_stats[stats] + english;
+            RuneDisplayPage.push(line);
+        }
+        RuneDisplay.push[RuneDisplayPage];
+        RuneDisplayPage = [];
+    }
+}
