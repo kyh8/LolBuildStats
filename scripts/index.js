@@ -1,3 +1,8 @@
+var defaultMasteryPage = {
+    name:'Mastery Page',
+    masteries:[]
+};
+
 $(document).ready(function(){
     var landingRactive = new Ractive({
         el:"#landing",
@@ -6,7 +11,9 @@ $(document).ready(function(){
             region:"NA",
             masteriesOrder:['Offense', 'Defense', 'Utility'],
             popupWindow: 'none',
-            popupActive: false
+            popupActive: false,
+            selectedMasteryPage: defaultMasteryPage,
+            summonerLoaded: true
         }
     });
     var key;
@@ -51,7 +58,6 @@ $(document).ready(function(){
                                 totalPoints: allMasteries[item.masteryId].ranks,
                                 points: 0
                             });
-                            console.log(allMasteries[item.masteryId].image.full);
                         } else{
                             row.push(null);
                         }
@@ -61,10 +67,21 @@ $(document).ready(function(){
                 console.log(tree);
                 trees[type] = tree;
             }
-            console.log(trees);
             var order = [trees['Offense'], trees['Defense'], trees['Utility']];
+            console.log(order);
+            var masteriesReference = {};
+            for(var i = 0; i < order.length; i++){
+                for (var rowIndex = 0; rowIndex < order[i].length; rowIndex++){
+                    for (var colIndex = 0; colIndex < order[i][rowIndex].length; colIndex++){
+                        if(order[i][rowIndex][colIndex]){
+                            masteriesReference[order[i][rowIndex][colIndex].id] = [i,rowIndex,colIndex];
+                        }
+                    }
+                }
+            }
+            landingRactive.set('masteriesReference', masteriesReference);
             landingRactive.set('masteryTrees', order);
-            landingRactive.set('totalTreePoints', [0,0,0]);
+            landingRactive.set('totalTreePoints', [0, 0, 0]);
         });
 
         var champsUrl = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=image&api_key=' + key;
@@ -104,6 +121,46 @@ $(document).ready(function(){
         });
     });
 
+    landingRactive.on('indexTest', function(event){
+        console.log(event);
+    });
+
+    $('#masteryPageDropdown').hide();
+    landingRactive.on('selectMasteryPage', function(event, masteryPage){
+        console.log(masteryPage);
+        $('#masteryPageDropdown').toggle('blind', 300, function(){
+            landingRactive.set('masteryPageSelectorActive', !landingRactive.get('masteryPageSelectorActive'));
+            if(masteryPage){
+                landingRactive.set('selectedMasteryPage', masteryPage);
+            }
+
+            console.log(masteryPage.masteries);
+            if(!landingRactive.get('masteryPageSelectorActive') && masteryPage.masteries.length > 0){
+                console.log('update mastery page');
+                var reference = landingRactive.get('masteriesReference');
+                var update = {};
+                var treeTotals = [0,0,0];
+                // reset the mastery page
+                for(var item in reference){
+                    update['masteryTrees.'+reference[item][0]+'.'+reference[item][1]+'.'+reference[item][2]+'.points'] = 0;
+                }
+
+                masteryPage.masteries.forEach(function(mastery){
+                    var indices = reference[mastery.id];
+                    console.log(indices);
+                    update['masteryTrees.'+indices[0]+'.'+indices[1]+'.'+indices[2]+'.points'] = mastery.rank;
+                    treeTotals[indices[0]]+=mastery.rank;
+                });
+                landingRactive.set(update);
+                landingRactive.set('totalTreePoints', treeTotals);
+            }
+        });
+    });
+
+    landingRactive.on('closePopup', function(){
+        closePopup(landingRactive);
+    });
+
     landingRactive.on('showChampSelect', function(){
         landingRactive.set('popupActive', true);
         landingRactive.set('popupWindow', 'champSelect');
@@ -111,13 +168,12 @@ $(document).ready(function(){
 
     landingRactive.on('showMasteryPage', function(){
         landingRactive.set('popupActive', true);
-        landingRactive.set('popupWindow', 'masteriesPreview')
+        landingRactive.set('popupWindow', 'masteriesPreview');
     });
 
     landingRactive.on('selectChampion', function(event, champion){
         landingRactive.set('selectedChampion', champion);
-        landingRactive.set('popupActive', false);
-        landingRactive.set('popupWindow', 'none');
+        closePopup(landingRactive);
     });
 
     landingRactive.on('getSummoner', function(){
@@ -125,7 +181,10 @@ $(document).ready(function(){
         console.log(allChampions);
         var summoner = landingRactive.get('summonerName');
 
-        console.log(key);
+        landingRactive.set('currentSummoner', summoner);
+        landingRactive.set('validCurrentSummoner', true);
+        landingRactive.set('summonerLoaded', false);
+
         var url = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/' + summoner + '?api_key=' + key;
         var request = $.ajax({
             url: url,
@@ -134,6 +193,13 @@ $(document).ready(function(){
             error: function(request, status, errorThrown){
                 if(errorThrown == 'Not Found'){
                     landingRactive.set('summonerRank', 'Summoner Not Found');
+                    landingRactive.set('masteryPages', []);
+                    landingRactive.set('selectedMasteryPage', defaultMasteryPage);
+                    landingRactive.set('validCurrentSummoner', false);
+                    landingRactive.set('summonerLoaded', true);
+
+                    landingRactive.set('popupActive', true);
+                    landingRactive.set('popupWindow', 'noSuchSummoner');
                 }
             }
         });
@@ -159,7 +225,11 @@ $(document).ready(function(){
                         masteryPage.masteries = page.masteries;
                         masteryPages.push(masteryPage);
                     });
+                    console.log('masteries:');
                     console.log(masteryPages);
+                    landingRactive.set('selectedMasteryPage', defaultMasteryPage);
+                    landingRactive.set('masteryPages', masteryPages);
+                    landingRactive.set('summonerLoaded', true);
                 });
 
                 var rankedUrl = 'https://na.api.pvp.net/api/lol/na/v2.5/league/by-summoner/'+id+'?api_key='+key;
@@ -233,7 +303,7 @@ $(document).ready(function(){
                             for(var j = 0; j < runes[i].slots.length; j++){
                                 var stats = runes_data[runes[i].slots[j].runeId];
                                 for (var prop in stats){
-                                    console.log("prop: " + prop);
+                                    //console.log("prop: " + prop);
                                     if (rune_stats.hasOwnProperty(prop)){
                                         rune_stats[prop] += stats[prop];
                                     } else {
@@ -262,3 +332,8 @@ $(document).ready(function(){
         return false;
     })
 });
+
+function closePopup(landingRactive){
+    landingRactive.set('popupActive', false);
+    landingRactive.set('popupWindow', 'none');
+}

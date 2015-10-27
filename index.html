@@ -3,6 +3,7 @@
 <head>
     <title>LoLBuildStats</title>
     <script src='scripts/vendor/jQuery.js'></script>
+    <script src='scripts/vendor/jquery-ui.js'></script>
     <script src="scripts/vendor/ractive.js"></script>
     <script src="scripts/index.js"></script>
     <link rel="icon" href="http://vignette1.wikia.nocookie.net/leagueoflegends/images/1/12/League_of_Legends_Icon.png/revision/latest?cb=20150402234343" type="image/png" sizes="16x16">
@@ -39,6 +40,18 @@
         -webkit-border-radius: 5px;
         border-radius: 5px;
         background: rgba(256,256,256,0.8);
+    }
+
+    #masteryPageDropdown::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.8);
+    }
+
+    #masteryPageDropdown::-webkit-scrollbar-track {
+        background-color:rgba(256,256,256,1.0);
+    }
+
+    .error::-webkit-scrollbar-thumb {
+        background-color:transparent;
     }
 
     ::-webkit-scrollbar-thumb:window-inactive {
@@ -87,19 +100,19 @@
         background-color:rgba(0,0,0,0.7);
         border-radius:10px;
         border:1px solid white;
-        width:190px;
+        width:210px;
         height:80px;
         color:white;
+
     }
 
     .selectedRunePage{
-        width:160px;
+        width:140px;
         background-color:white;
         height:25px;
         border:1px solid gray;
         position:relative;
         cursor:pointer;
-        margin-top:10px;
         display:inline-block;
         vertical-align:middle;
     }
@@ -118,13 +131,13 @@
     }
 
     .selectedMasteryPage{
-        width:120px;
+        width:140px;
         background-color:white;
         height:25px;
         border:1px solid gray;
         position:relative;
         cursor:pointer;
-        margin-top:10px;
+        margin-top:3px;
         display:inline-block;
         vertical-align:middle;
     }
@@ -141,12 +154,64 @@
         border-style: solid;
         border-color: grey transparent;
     }
+
+    .masteryPageSelect{
+        background-color:white;
+        cursor:pointer;
+    }
+
+    .masteryPageSelect:hover{
+        background-color:lightgray;
+    }
+
+    #closePopup:hover{
+        opacity:0.7;
+    }
+
+    #closePopup{
+        cursor:pointer;
+        position:absolute;
+    }
+
+    .okButton{
+        width: 70px;
+        height: 20px;
+        background-color:red;
+        color:white;
+        border:1px solid white;
+        margin-top:10px;
+        cursor:pointer;
+    }
+
+    .okButton:hover{
+        box-shadow:0 0 10px 0 white;
+    }
+
+    .errorWindow{
+        border-radius:10px;
+        background-color:black;
+        width:200px;
+        height:90px;
+        margin-top:140px;
+        padding:10px;
+        padding-top:30px;
+        border:1px solid white;
+    }
 </style>
 <body id="page-body" style="background-image:url(http://na.leagueoflegends.com/sites/default/files/upload/art/teambuilder-wallpaper.jpg)">
     <script id="landing-template" type="type/ractive">
         <div align="center" style="{{popupActive ? '' : 'display:none;'}} position:absolute; z-index:9999; margin-top:-10px; width:100%; height:100%; background-color:rgba(0,0,0,0.7)">
+            {{#if popupWindow == 'noSuchSummoner'}}
+            <div class="errorWindow">
+                <div style="color:white;">No summoner with that name was found.</div>
+                <div class="okButton" on-click="closePopup">Ok</div>
+            </div>
+            {{/if}}
             {{#if popupWindow == 'champSelect'}}
-            <div style="margin-top:150px; background-color:black; box-shadow:0 0 15px 0 white; border-radius:10px; padding-bottom: 10px; padding-top: 10px; width: 550px;">
+            <div style="margin-top:150px; position:relative; background-color:black; box-shadow:0 0 15px 0 white; border-radius:10px; padding-bottom: 20px; padding-top: 20px; width: 570px;">
+                <div id="closePopup" on-click="closePopup" style="top: 3px; right:3px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/VisualEditor_-_Icon_-_Close_-_white.svg/768px-VisualEditor_-_Icon_-_Close_-_white.svg.png" width=15 height=15>
+                </div>
                 <div style="background-color:black; border:1px solid white; border-radius:5px; padding:5px; width: 520px; height: 320px; max-height:320px; overflow:hidden; overflow-y:scroll;">
                     <table cellpadding=5>
                         {{#each champions:i}}
@@ -165,40 +230,45 @@
             </div>
             {{/if}}
             {{#if popupWindow == 'masteriesPreview'}}
-            <div style="margin-top:150px; position:relative; width:700px; height:405px; background:background: no-repeat center center fixed;-webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-image:url(http://media-copper.cursecdn.com/attachments/29/415/masteries-background.jpg)">
-                <table cellpadding=0 width=100% height=100%>
-                    <tr>
-                        {{#each masteryTrees:i}}
-                        <td>
-                            <div class="masteryTree" style="{{i == 0 ? 'margin-left: 3px;' : ''}};margin-top:-10px;" align="center">
-                                <div style="margin-top:10px;">
-                                    <table cellpadding=5>
-                                    {{#each masteryTrees[i]: j}}
-                                        <tr>
-                                        {{#each masteryTrees[i][j]}}
-                                            <td>
-                                                <div style="width:40px; height:40px; position:relative; border-radius:5px; {{this ? 'border:1px solid gold;' : ''}}">
-                                                    {{#if this}}
-                                                        <img src="{{image}}" width=40 height=40 style="cursor:pointer; border-radius:5px;">
-                                                        <div align="center" style="position:absolute; bottom:-1px; right:-1px; border-bottom-right-radius:5px; background-color:black; color:white; border:1px solid gold; width:20px; height:10px; font-size:9px;">
-                                                            {{points}}/{{totalPoints}}
-                                                        </div>
-                                                    {{/if}}
-                                                </div>
-                                            </td>
+            <div style="position:relative; margin-top:150px; padding-top:20px; width: 740px; height:425px; border-radius:10px; background-color:black; box-shadow:0 0 15px 0 white;">
+                <div id="closePopup" on-click="closePopup" style="top: 3px; right:3px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/VisualEditor_-_Icon_-_Close_-_white.svg/768px-VisualEditor_-_Icon_-_Close_-_white.svg.png" width=15 height=15>
+                </div>
+                <div style="position:relative; width:700px; height:405px; background:background: no-repeat center center fixed;-webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-image:url(http://media-copper.cursecdn.com/attachments/29/415/masteries-background.jpg)">
+                    <table cellpadding=0 width=100% height=100%>
+                        <tr>
+                            {{#each masteryTrees:i}}
+                            <td>
+                                <div class="masteryTree" style="{{i == 0 ? 'margin-left: 3px;' : ''}};margin-top:-10px;" align="center">
+                                    <div style="margin-top:10px;">
+                                        <table cellpadding=5>
+                                        {{#each masteryTrees[i]: j}}
+                                            <tr>
+                                            {{#each masteryTrees[i][j]}}
+                                                <td>
+                                                    <div style="width:40px; height:40px; position:relative; border-radius:5px; {{points == 0 ? 'opacity:0.3;' : ''}} {{this ? 'border:1px solid gold;' : ''}} {{points < totalPoints && points > 0 ? 'border:1px solid lightgreen;' : ''}}">
+                                                        {{#if this}}
+                                                            <img src="{{image}}" width=40 height=40 on-click="indexTest" style="cursor:pointer; border-radius:5px;">
+                                                            <div align="center" style="position:absolute; color:white; {{points > 0 ? 'color:gold;' : ''}}; {{points < totalPoints && points > 0 ? 'color:lightgreen;' : ''}} bottom:-1px; right:-1px; border-bottom-right-radius:5px; background-color:black; border:1px solid gold; {{points < totalPoints && points > 0 ? 'border-right:1px solid lightgreen; border-bottom: 1px solid lightgreen;' : ''}} width:20px; height:10px; font-size:9px;">
+                                                                {{points}}/{{totalPoints}}
+                                                            </div>
+                                                        {{/if}}
+                                                    </div>
+                                                </td>
+                                            {{/each}}
+                                            </tr>
                                         {{/each}}
-                                        </tr>
-                                    {{/each}}
-                                    </table>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
-                            <div style="font-size:18px; margin-left:20px; position:absolute; bottom:20px; color:white;">
-                                {{masteriesOrder[i]}}: {{totalTreePoints[i]}}
-                            </div>
-                        </td>
-                        {{/each}}
-                    </tr>
-                </table>
+                                <div style="font-size:18px; margin-left:20px; position:absolute; bottom:20px; color:white;">
+                                    {{masteriesOrder[i]}}: {{totalTreePoints[i]}}
+                                </div>
+                            </td>
+                            {{/each}}
+                        </tr>
+                    </table>
+                </div>
             </div>
             {{/if}}
         </div>
@@ -215,45 +285,86 @@
                 <div on-click="getSummoner" style="display:inline-block; vertical-align:top; cursor:pointer; border-radius: 5px; width:50px; padding-top:5px; padding-bottom:6px; background-color:lightblue; color:white;">
                     Go
                 </div>
-                <div>
-                    {{summonerRank}}
-                </div>
+                <!--<div>-->
+                    <!--{{summonerRank}}-->
+                <!--</div>-->
             </div>
-            <div style="margin-top:10px; width:300px; padding:10px; border:1px solid white; border-radius:10px; background-color: rgba(0,0,0,0.7); color:white;">
-                <div id="champIcon" on-click="showChampSelect" style="cursor:pointer; display:inline-block; vertical-align:middle; {{!selectedChampion ? 'background-color:gray' : ''}}; width:70px; height:70px; border-radius:10px; border: 1px solid black;">
-                    {{#if selectedChampion}}
-                        <img src="{{selectedChampion.image}}" style="border-radius:10px;" width=70 height=70>
-                    {{else}}
-                        <div align="center" style="font-size:36px; margin-top:15px; color:white;">?</div>
-                    {{/if}}
-                </div>
-                <div style="display:inline-block; vertical-align:middle; {{selectedChampion ? 'margin-top:10px;' : ''}} margin-left:10px;" align="left">
-                    {{#if !selectedChampion}}
-                        <div style="font-size:20px;">Select a Champion...</div>
-                    {{/if}}
-                    <div style="font-size:30px;">{{selectedChampion.name}}</div>
-                    <div style="font-size:18px;">{{selectedChampion.title}}</div>
-                </div>
-            </div>
-            <div>
-            <table cellpadding=10>
+            <div style="margin-top:10px;">
+            <table>
                 <tr>
                     <td>
-                        <div class="pageSelection" align="center">
-                            <div style="margin-top:10px;">Runes</div>
-                            <div align="left" class="selectedRunePage">
-                                <div style="padding-top:5px; padding-bottom:5px; vertical-align:top; font-size: 14px; color:black; margin-left:5px;">Rune Page</div>
+                        <div style="width:275px; height:60px; padding:10px; border:1px solid white; border-radius:10px; background-color: rgba(0,0,0,0.7); color:white;">
+                            <div style="margin-top:-1px;">
+                            <div id="champIcon" on-click="showChampSelect" style="cursor:pointer; display:inline-block; vertical-align:middle; {{!selectedChampion ? 'background-color:gray' : ''}}; width:60px; height:60px; border-radius:10px; border: 1px solid black;">
+                                {{#if selectedChampion}}
+                                    <img src="{{selectedChampion.image}}" style="border-radius:10px;" width=60 height=60>
+                                {{else}}
+                                    <div align="center" style="font-size:36px; margin-top:8px; color:white;">?</div>
+                                {{/if}}
+                            </div>
+                            <div style="display:inline-block; vertical-align:middle; {{selectedChampion ? 'margin-top:5px;' : ''}} margin-left:10px;" align="left">
+                                {{#if !selectedChampion}}
+                                    <div style="font-size:20px;">Select a Champion...</div>
+                                {{/if}}
+                                <div style="font-size:24px;">{{selectedChampion.name}}</div>
+                                <div style="font-size:16px;">{{selectedChampion.title}}</div>
+                            </div>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <div class="pageSelection" align="center">
-                            <div style="margin-top:10px;">Masteries</div>
-                            <div align="left" class="selectedMasteryPage">
-                                <div style="padding-top:5px; padding-bottom:5px; vertical-align:top; font-size: 14px; color:black; margin-left:5px;">Mastery Page</div>
-                            </div>
-                            <div on-click="showMasteryPage" style="display:inline-block; vertical-align:middle; cursor:pointer; margin-left:7px; margin-top:10px; border-radius:5px; border:1px solid white; width:25px; height:25px; background-color:lightblue; ">
-                                <img src="http://www.clker.com/cliparts/n/U/H/1/H/u/search-icon-white-one-md.png" width=13 height=13 style="margin-top:6px;">
+                        <div>
+                            <div class="pageSelection" align="center" style="position:relative">
+                                <div style="margin-top:7px;">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <div align="left" class="selectedRunePage">
+                                                    <div style="padding-top:5px; padding-bottom:5px; vertical-align:top; font-size: 14px; color:black; margin-left:5px;">
+                                                        Rune Page
+                                                    </div>
+                                                </div>
+                                                {{#if !summonerLoaded}}
+                                                    <div on-click="showMasteryPage" align="center" style="display:inline-block; vertical-align:middle; width:25px; height:25px; margin-left:5px; margin-top:-7px;">
+                                                        <img src="http://media.proportsia.co.il/02e0a75f-a08e-4408-b6ec-cd690e1146c2/content/images/loader01.gif" width=30 height=30>
+                                                    </div>
+                                                {{/if}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div align="left" on-click="selectMasteryPage:{{selectedMasteryPage}}" class="selectedMasteryPage {{masteryPageSelectorActive ? 'active' : ''}}">
+                                                    <div style="padding-top:5px; padding-bottom:5px; vertical-align:top; font-size: 14px; color:black; margin-left:5px;">
+                                                        {{selectedMasteryPage.name}}
+                                                    </div>
+                                                </div>
+                                                <div on-click="showMasteryPage" align="center" style="display:inline-block; vertical-align:middle; cursor:pointer; margin-left:7px; margin-top:3px; border-radius:5px; border:1px solid white; width:25px; height:25px; background-color:lightblue; ">
+                                                    <img src="http://www.clker.com/cliparts/n/U/H/1/H/u/search-icon-white-one-md.png" width=13 height=13 style="margin-top:6px;">
+                                                </div>
+                                                <div align="center" id="masteryPageDropdown" class="{{!validCurrentSummoner ? 'error' : ''}}" style="position:absolute; overflow:hidden; overflow-y:auto; max-height:157px; left:15px; font-size:14px; width:140px; background-color:white; color:black; z-index:9999">
+                                                    <ul align="center" style="list-style-type:none; padding-left:0px; width:140px; margin:0px;">
+                                                        {{#each masteryPages}}
+                                                        <li class="masteryPageSelect" align="left" on-click="selectMasteryPage:{{.}}">
+                                                            <div style="padding:5px;">
+                                                                {{name}}
+                                                            </div>
+                                                        </li>
+                                                        {{/each}}
+                                                        {{#if !validCurrentSummoner}}
+                                                        <li class="masteryPageSelect" align="left">
+                                                            <div style="width:100%">
+                                                                <div style="opacity:0.5; padding:5px; cursor:default; background-color:gray; color:white;">
+                                                                    No Summoner Entered
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        {{/if}}
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </td>
