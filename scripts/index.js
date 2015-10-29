@@ -214,7 +214,7 @@ $(document).ready(function(){
     });
 
     landingRactive.on('indexTest', function(event, object){
-        console.log(object);
+        //console.log(object);
     });
 
     $('#masteryPageDropdown').hide();
@@ -251,7 +251,6 @@ $(document).ready(function(){
                         var index = temp[1];
                         var runePages = landingRactive.get('runePages');
                         var page = runePages[index];
-                        console.log(page);
 
                         var tooltipContent = '<div><div style="display:inline-block;">';
                         for (var item in page.items){
@@ -332,9 +331,9 @@ $(document).ready(function(){
             }
 
             landingRactive.set('suppressed', false);
-            console.log(masteryPage.masteries);
+            //console.log(masteryPage.masteries);
             if(!landingRactive.get('masteryPageSelectorActive') && masteryPage.masteries.length > 0){
-                console.log('update mastery page');
+                //console.log('update mastery page');
                 var reference = landingRactive.get('masteriesReference');
                 var update = {};
                 var treeTotals = [0,0,0];
@@ -345,7 +344,7 @@ $(document).ready(function(){
 
                 masteryPage.masteries.forEach(function(mastery){
                     var indices = reference[mastery.id];
-                    console.log(indices);
+                    //console.log(indices);
                     update['masteryTrees.'+indices[0]+'.'+indices[1]+'.'+indices[2]+'.points'] = mastery.rank;
                     treeTotals[indices[0]]+=mastery.rank;
                 });
@@ -401,7 +400,6 @@ $(document).ready(function(){
 
     landingRactive.on('selectChampion', function(event, champion){
         landingRactive.set('selectedChampion', champion);
-        console.log(champion);
         var displayedStats = getBaseStats(champion.stats);
         landingRactive.set('champStats', displayedStats);
         closePopup(landingRactive);
@@ -409,6 +407,9 @@ $(document).ready(function(){
 
     landingRactive.on('getSummoner', function(){
         var summoner = landingRactive.get('summonerName');
+        if(summoner.length == 0){
+            return;
+        }
 
         landingRactive.set('currentSummoner', summoner);
         landingRactive.set('validCurrentSummoner', true);
@@ -435,9 +436,9 @@ $(document).ready(function(){
         });
 
         $.when(request).done(function(s){
-            console.log(s);
+            //console.log(s);
             for(var summoner in s){
-                console.log(s[summoner].id);
+                //console.log(s[summoner].id);
                 var id = s[summoner].id;
 
                 var masteryUrl = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/'+ id + '/masteries?api_key=' + key;
@@ -455,8 +456,8 @@ $(document).ready(function(){
                         masteryPage.masteries = page.masteries;
                         masteryPages.push(masteryPage);
                     });
-                    console.log('masteries:');
-                    console.log(masteryPages);
+                    //console.log('masteries:');
+                    //console.log(masteryPages);
                     landingRactive.set('selectedMasteryPage', defaultMasteryPage);
                     landingRactive.set('masteryPages', masteryPages);
                     landingRactive.set('summonerLoaded', true);
@@ -507,8 +508,8 @@ $(document).ready(function(){
                 });
 
                 $.when(runeDataRequest).done(function(runeData){
-                    console.log('all runes');
-                    console.log(runeData);
+                    //console.log('all runes');
+                    //console.log(runeData);
                     for(var prop in runeData.data){
                         allRunesData[runeData.data[prop].id] = {
                             stats:runeData.data[prop].stats,
@@ -527,11 +528,15 @@ $(document).ready(function(){
                     $.when(runesRequest).done(function(runeData){
                         var runes = runeData[id].pages;
                         var runePages = [];
+                        console.log('rune data');
+                        console.log(runes);
                         for(var i = 0; i < runes.length; i++){
                             var runeStats = {};
                             var runeItems = {};
                             var runeImages = {};
-
+                            if(!runes[i].slots){
+                                continue;
+                            }
                             for(var j = 0; j < runes[i].slots.length; j++){
                                 var runeId = runes[i].slots[j].runeId;
                                 if(runeItems.hasOwnProperty(runeId)){
@@ -563,9 +568,9 @@ $(document).ready(function(){
 
                             runePages.push(runePage);
                         }
-                        console.log("RUNE PAGES");
+                        //console.log("RUNE PAGES");
                         //console.log(runePages);
-                        console.log(allRunesData);
+                        //console.log(allRunesData);
                         landingRactive.set('selectedRunePage', defaultRunePage);
                         landingRactive.set('runePages', runePages);
                     });
