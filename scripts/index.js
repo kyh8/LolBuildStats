@@ -55,7 +55,8 @@ $(document).ready(function(){
             summonerLoaded: true,
             keybindings:['Q','W','E','R'],
             stats:stats,
-            statToVariable:statToVariable
+            statToVariable:statToVariable,
+            championLevel:1
         }
     });
     var key;
@@ -234,63 +235,71 @@ $(document).ready(function(){
     });
 
     landingRactive.on('selectRunePage', function(event, runePage){
-        $('.runePage').tooltip({
-            items:"div.runePage",
-            position:{
-                my:"right-5 top",
-                at:"left top",
-                collision:"fit"
-            },
-            content: function(){
-                var element = $(this);
-                if(element.is("div.runePage")){
-                    var text = element.attr("id");
-                    var temp = text.split('-');
-                    var index = temp[1];
-                    var runePages = landingRactive.get('runePages');
-                    var page = runePages[index];
-                    console.log(page);
+        if(runePage.defaultPage){
+            $('.runePage').tooltip({
+                items:"div.runePage",
+                position:{
+                    my:"right-5 top",
+                    at:"left top",
+                    collision:"fit"
+                },
+                content: function(){
+                    var element = $(this);
+                    if(element.is("div.runePage")){
+                        var text = element.attr("id");
+                        var temp = text.split('-');
+                        var index = temp[1];
+                        var runePages = landingRactive.get('runePages');
+                        var page = runePages[index];
+                        console.log(page);
 
-                    var tooltipContent = '<div><div style="display:inline-block;">';
-                    for (var item in page.items){
-                        tooltipContent += '<div style="display:inline-block; vertical-align: middle;">'+page.items[item]+'x</div>'
-                        tooltipContent += '<div style="display:inline-block; vertical-align: middle; margin-left:10px;"><img width=30 height="30" src="' +
-                            'http://ddragon.leagueoflegends.com/cdn/5.21.1/img/rune/' + page.images[item] + '"></div>';
-                        tooltipContent += '<div style="font-size:12px;">' + allRunesData[item].name + '</div>';
-                        for(var mod in allRunesData[item].stats){
-                            var statValue = allRunesData[item].stats[mod];
+                        var tooltipContent = '<div><div style="display:inline-block;">';
+                        for (var item in page.items){
+                            tooltipContent += '<div style="display:inline-block; vertical-align: middle;">'+page.items[item]+'x</div>'
+                            tooltipContent += '<div style="display:inline-block; vertical-align: middle; margin-left:10px;"><img width=30 height="30" src="' +
+                                'http://ddragon.leagueoflegends.com/cdn/5.21.1/img/rune/' + page.images[item] + '"></div>';
+                            tooltipContent += '<div style="font-size:12px;">' + allRunesData[item].name + '</div>';
+                            for(var mod in allRunesData[item].stats){
+                                var statValue = allRunesData[item].stats[mod];
+                                var sign = statValue > 0 ? '+' : '';
+                                var description = modVariables[mod];
+                                var temp = description.split(' ');
+                                if(temp[0] == '%'){
+                                    statValue = statValue * 100;
+                                }
+                                statValue = Math.round(statValue*100)/100;
+
+                                tooltipContent += '<div style="font-size:10px;">(' + sign + statValue + ' ' + description + ')</div>';
+                            }
+                            tooltipContent += '<br>'
+                        }
+                        tooltipContent += '</div><div align="left" style="margin-left:20px; vertical-align:top; display:inline-block;"><div style="font-size:20px;">Total Statistics</div>';
+                        for(var stat in page.stats){
+                            var statValue = page.stats[stat];
                             var sign = statValue > 0 ? '+' : '';
-                            var description = modVariables[mod];
+                            var description = modVariables[stat];
                             var temp = description.split(' ');
                             if(temp[0] == '%'){
                                 statValue = statValue * 100;
                             }
                             statValue = Math.round(statValue*100)/100;
 
-                            tooltipContent += '<div style="font-size:10px;">(' + sign + statValue + ' ' + description + ')</div>';
+                            tooltipContent += '<div style="font-size:12px;">' + sign + statValue + ' ' + description + '</div>'
                         }
-                        tooltipContent += '<br>'
-                    }
-                    tooltipContent += '</div><div align="left" style="margin-left:20px; vertical-align:top; display:inline-block;"><div style="font-size:20px;">Total Statistics</div>';
-                    for(var stat in page.stats){
-                        var statValue = page.stats[stat];
-                        var sign = statValue > 0 ? '+' : '';
-                        var description = modVariables[stat];
-                        var temp = description.split(' ');
-                        if(temp[0] == '%'){
-                            statValue = statValue * 100;
-                        }
-                        statValue = Math.round(statValue*100)/100;
+                        tooltipContent += '</div></div>';
 
-                        tooltipContent += '<div style="font-size:12px;">' + sign + statValue + ' ' + description + '</div>'
+                        return tooltipContent;
                     }
-                    tooltipContent += '</div></div>';
-
-                    return tooltipContent;
-                }
-            },
-            tooltipClass: "runePage-tooltip"
-        });
+                },
+                tooltipClass: "runePage-tooltip"
+            });
+        }
+        else{
+            $(".runePage").tooltip({
+                disable:true,
+                hide:true
+            });
+        }
 
         landingRactive.set('suppressed', true);
         if(landingRactive.get('masteryPageSelectorActive')){
@@ -301,6 +310,7 @@ $(document).ready(function(){
             landingRactive.set('runePageSelectorActive', !landingRactive.get('runePageSelectorActive'));
             if (runePage) {
                 landingRactive.set('selectedRunePage', runePage);
+                // UPDATE CHAMP STATS HERE
             }
             landingRactive.set('suppressed', false);
         });
@@ -317,6 +327,7 @@ $(document).ready(function(){
             landingRactive.set('masteryPageSelectorActive', !landingRactive.get('masteryPageSelectorActive'));
             if(masteryPage){
                 landingRactive.set('selectedMasteryPage', masteryPage);
+                //UPDATE CHAMP STATS HERE
             }
 
             landingRactive.set('suppressed', false);
@@ -389,6 +400,7 @@ $(document).ready(function(){
 
     landingRactive.on('selectChampion', function(event, champion){
         landingRactive.set('selectedChampion', champion);
+        console.log(champion);
         var displayedStats = getBaseStats(champion.stats);
         landingRactive.set('champStats', displayedStats);
         closePopup(landingRactive);
