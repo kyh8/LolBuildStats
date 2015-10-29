@@ -4,6 +4,36 @@ var defaultMasteryPage = {
     defaultPage:true
 };
 
+var champStatVariables = [
+    'hpregen','mpregen','apen','mpen','lifesteal','spellvamp',
+    'crit','tenacity','attackdamage','abilitypower','armor',
+    'spellblock','attackspeed','cdr','attackrange','movespeed',
+    'hp','mp'
+];
+
+var statToVariable = {
+    'HP Regen':'hpregen',
+    'Mana Regen':'mpregen',
+    'Armor Pen':'apen',
+    'Magic Pen':'mpen',
+    'Life Steal':'lifesteal',
+    'Spell Vamp':'spellvamp',
+    'Crit Chance':'crit',
+    'Tenacity':'tenacity',
+    'Attack Damage': 'attackdamage',
+    'Ability Power':'abilitypower',
+    'Armor':'armor',
+    'Magic Resistance':'spellblock',
+    'Attack Speed':'attackspeed',
+    'Cooldown Reduction':'cdr',
+    'Attack Range':'attackrange',
+    'Movement Speed':'movespeed',
+    'Health':'hp',
+    'Mana/Energy':'mp'
+};
+
+var stats = Object.keys(statToVariable);
+
 $(document).ready(function(){
     var landingRactive = new Ractive({
         el:"#landing",
@@ -14,7 +44,10 @@ $(document).ready(function(){
             popupWindow: 'none',
             popupActive: false,
             selectedMasteryPage: defaultMasteryPage,
-            summonerLoaded: true
+            summonerLoaded: true,
+            keybindings:['Q','W','E','R'],
+            stats:stats,
+            statToVariable:statToVariable
         }
     });
     var key;
@@ -33,7 +66,6 @@ $(document).ready(function(){
 
     $.when(resources).done(function(r) {
         key = r.apiKey;
-        console.log(key);
         var url = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/mastery?api_key=' + key;
         var allMasteriesRequest = $.ajax({
             url: url,
@@ -46,12 +78,9 @@ $(document).ready(function(){
 
         $.when(allMasteriesRequest).done(function(m){
             allMasteries = m.data;
-            console.log(allMasteries);
             masteryTree = m.tree;
-            console.log(masteryTree);
             var trees = {};
             for(var type in masteryTree){
-                console.log(type);
                 var tree = [];
                 var rows = masteryTree[type];
                 rows.forEach(function(r){
@@ -61,7 +90,7 @@ $(document).ready(function(){
                             row.push({
                                 description: allMasteries[item.masteryId].description,
                                 id: allMasteries[item.masteryId].id,
-                                image: 'http://ddragon.leagueoflegends.com/cdn/5.20.1/img/mastery/' + allMasteries[item.masteryId].image.full,
+                                image: 'http://ddragon.leagueoflegends.com/cdn/5.21.1/img/mastery/' + allMasteries[item.masteryId].image.full,
                                 masteryTree: allMasteries[item.masteryId].masteryTree,
                                 name: allMasteries[item.masteryId].name,
                                 totalPoints: allMasteries[item.masteryId].ranks,
@@ -73,11 +102,9 @@ $(document).ready(function(){
                     });
                     tree.push(row);
                 });
-                console.log(tree);
                 trees[type] = tree;
             }
             var order = [trees['Offense'], trees['Defense'], trees['Utility']];
-            console.log(order);
             var masteriesReference = {};
             for(var i = 0; i < order.length; i++){
                 for (var rowIndex = 0; rowIndex < order[i].length; rowIndex++){
@@ -93,18 +120,24 @@ $(document).ready(function(){
             landingRactive.set('totalTreePoints', [0, 0, 0]);
         });
 
-        var champsUrl = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=image&api_key=' + key;
+        var champsUrl = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?api_key=' + key;
         var champsRequest = $.ajax({
             url: champsUrl,
             dataType: 'json',
-            type: "GET"
+            type: "GET",
+            data:{
+                champData:"image,stats,passive,spells"
+            }
         });
 
         $.when(champsRequest).done(function(champions){
             for(var key in champions.data){
                 allChampions.push({
                     name:champions.data[key].name,
-                    image:'http://ddragon.leagueoflegends.com/cdn/5.20.1/img/champion/' + champions.data[key].image.full,
+                    image:'http://ddragon.leagueoflegends.com/cdn/5.21.1/img/champion/' + champions.data[key].image.full,
+                    spells:champions.data[key].spells,
+                    passive:champions.data[key].passive,
+                    stats: champions.data[key].stats,
                     title:champions.data[key].title,
                     id:champions.data[key].id
                 });
@@ -188,7 +221,7 @@ $(document).ready(function(){
     });
 
     landingRactive.on('selectMasteryPage', function(event, masteryPage){
-        console.log(masteryPage);
+        //console.log(masteryPage);
         landingRactive.set('suppressed', true);
         $('#masteryPageDropdown').toggle('blind', 300, function(){
             landingRactive.set('masteryPageSelectorActive', !landingRactive.get('masteryPageSelectorActive'));
@@ -266,6 +299,8 @@ $(document).ready(function(){
 
     landingRactive.on('selectChampion', function(event, champion){
         landingRactive.set('selectedChampion', champion);
+        var displayedStats = getBaseStats(champion.stats);
+        landingRactive.set('champStats', displayedStats);
         closePopup(landingRactive);
     });
 
@@ -366,7 +401,6 @@ $(document).ready(function(){
                 });
 
                 $.when(runeDataRequest).done(function(rune_d){
-
                     for(var prop in rune_d.data){
                         var stats = {};
                         stats = rune_d.data[prop].stats;
@@ -382,8 +416,6 @@ $(document).ready(function(){
 
                     $.when(runesRequest).done(function(runes_j){
                         var runes = runes_j[id].pages;
-
-
                         for(var i = 0; i < runes.length; i++){
                             var rune_stats = {};
 
@@ -402,7 +434,7 @@ $(document).ready(function(){
                             var rune_page = {
                                 "name" : "",
                                 "stats" : {}
-                            }
+                            };
 
                             rune_page.name = runes[i].name;
                             rune_page.stats = rune_stats;
@@ -428,6 +460,29 @@ function openPopup(landingRactive, type){
 function closePopup(landingRactive){
     landingRactive.set('popupActive', false);
     landingRactive.set('popupWindow', 'none');
+}
+
+function getBaseStats(championStats){
+    return {
+        hpregen:championStats.hpregen,
+        mpregen:championStats.mpregen,
+        apen:0,
+        mpen:0,
+        lifesteal:0,
+        spellvamp:0,
+        crit:championStats.crit,
+        tenacity:0,
+        attackdamage:championStats.attackdamage,
+        abilitypower:0,
+        armor:championStats.armor,
+        spellblock:championStats.spellblock,
+        attackspeed:Math.round((0.625/(1+championStats.attackspeedoffset))*1000)/1000,
+        cdr:0,
+        attackrange:championStats.attackrange,
+        movespeed:championStats.movespeed,
+        hp:championStats.hp,
+        mp:championStats.mp
+    }
 }
 
 /*
