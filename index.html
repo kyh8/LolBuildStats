@@ -42,14 +42,6 @@
         background: rgba(256,256,256,0.8);
     }
 
-    #masteryPageDropdown::-webkit-scrollbar-thumb {
-        background: rgba(0,0,0,0.8);
-    }
-
-    #masteryPageDropdown::-webkit-scrollbar-track {
-        background-color:rgba(256,256,256,1.0);
-    }
-
     .error::-webkit-scrollbar-thumb {
         background-color:transparent;
     }
@@ -105,34 +97,9 @@
         width:210px;
         height:80px;
         color:white;
-
     }
 
-    .selectedRunePage{
-        width:140px;
-        background-color:white;
-        height:25px;
-        border:1px solid gray;
-        position:relative;
-        cursor:pointer;
-        display:inline-block;
-        vertical-align:middle;
-    }
-
-    .selectedRunePage:after{
-        content: "";
-        width: 0;
-        height: 0;
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        margin-top: -3px;
-        border-width: 4px 4px 0 4px;
-        border-style: solid;
-        border-color: grey transparent;
-    }
-
-    .selectedMasteryPage{
+    .selectedPage{
         width:140px;
         background-color:white;
         height:25px;
@@ -144,7 +111,7 @@
         vertical-align:middle;
     }
 
-    .selectedMasteryPage:after{
+    .selectedPage:after{
         content: "";
         width: 0;
         height: 0;
@@ -157,16 +124,16 @@
         border-color: grey transparent;
     }
 
-    .selectedMasteryPage.active:after{
+    .selectedPage.active:after{
         border-width: 0 4px 4px 4px;
     }
 
-    .masteryPageSelect{
+    .pageSelect{
         background-color:white;
         cursor:pointer;
     }
 
-    .masteryPageSelect:hover{
+    .pageSelect:hover{
         background-color:lightgray;
     }
 
@@ -257,7 +224,7 @@
 </style>
 <body id="page-body" style="background-image:url(http://na.leagueoflegends.com/sites/default/files/upload/art/teambuilder-wallpaper.jpg)">
     <script id="landing-template" type="type/ractive">
-        <div align="center" style="{{popupActive ? '' : 'display:none;'}} position:absolute; z-index:9999; margin-top:-10px; width:100%; height:100%; background-color:rgba(0,0,0,0.7)">
+        <div align="center" style="{{popupActive ? '' : 'display:none;'}} position:absolute; z-index:9999; margin-top:-10px; width:100%; height:100%; background-color:rgba(0,0,0,0.8)">
             {{#if popupWindow == 'noSuchSummoner'}}
             <div class="errorWindow">
                 <div style="color:white;">No summoner with that name was found.</div>
@@ -369,25 +336,44 @@
                     <td>
                         <div>
                             <div class="pageSelection" align="center" style="position:relative">
-                                <div style="margin-top:7px;">
+                                <div style="margin-top:5px;">
                                     <table>
                                         <tr>
                                             <td>
-                                                <div align="left" class="selectedRunePage">
+                                                <div align="left" on-click="selectRunePage:{{selectedRunePage}}" style="display:inline-block; margin-top:0; margin-left:-4px;" class="selectedPage {{runePageSelectorActive ? 'active' : ''}}">
                                                     <div style="padding-top:5px; padding-bottom:5px; vertical-align:top; font-size: 14px; color:black; margin-left:5px;">
-                                                        Rune Page
+                                                        {{selectedRunePage.name}}
                                                     </div>
                                                 </div>
-                                                {{#if !summonerLoaded}}
-                                                    <div on-click="showMasteryPage" align="center" style="display:inline-block; vertical-align:middle; width:25px; height:25px; margin-left:5px; margin-top:-7px;">
-                                                        <img src="http://media.proportsia.co.il/02e0a75f-a08e-4408-b6ec-cd690e1146c2/content/images/loader01.gif" width=30 height=30>
-                                                    </div>
-                                                {{/if}}
+                                                <div style="display:inline-block; visibility:{{!summonerLoaded ? 'visible;' : 'hidden;'}} vertical-align:middle; width:25px; height:25px; margin-left:5px; margin-top:-7px;">
+                                                    <img src="http://media.proportsia.co.il/02e0a75f-a08e-4408-b6ec-cd690e1146c2/content/images/loader01.gif" width=30 height=30>
+                                                </div>
+                                                <div align="center" id="runePageDropdown" class="{{!validCurrentSummoner ? 'error' : ''}}" style="position:absolute; overflow:hidden; overflow-y:auto; max-height:157px; left:15px; font-size:14px; width:140px; background-color:white; color:black; z-index:1000">
+                                                    <ul align="center" style="list-style-type:none; padding-left:0px; width:140px; margin:0px;">
+                                                        {{#each runePages}}
+                                                        <li class="pageSelect" align="left" on-click="selectRunePage:{{.}}">
+                                                            <div style="padding:5px;">
+                                                                {{name}}
+                                                            </div>
+                                                        </li>
+                                                        {{/each}}
+                                                        {{#if !validCurrentSummoner}}
+                                                        <li class="pageSelect" align="left">
+                                                            <div style="width:100%">
+                                                                <div style="opacity:0.5; padding:5px; cursor:default; background-color:gray; color:white;">
+                                                                    No Summoner Entered
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        {{/if}}
+                                                    </ul>
+                                                </div>
+                                            </td>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <div align="left" on-click="selectMasteryPage:{{selectedMasteryPage}}" class="selectedMasteryPage {{masteryPageSelectorActive ? 'active' : ''}}">
+                                                <div align="left" on-click="selectMasteryPage:{{selectedMasteryPage}}" class="selectedPage {{masteryPageSelectorActive ? 'active' : ''}}">
                                                     <div style="padding-top:5px; padding-bottom:5px; vertical-align:top; font-size: 14px; color:black; margin-left:5px;">
                                                         {{selectedMasteryPage.name}}
                                                     </div>
@@ -398,14 +384,14 @@
                                                 <div align="center" id="masteryPageDropdown" class="{{!validCurrentSummoner ? 'error' : ''}}" style="position:absolute; overflow:hidden; overflow-y:auto; max-height:157px; left:15px; font-size:14px; width:140px; background-color:white; color:black; z-index:999">
                                                     <ul align="center" style="list-style-type:none; padding-left:0px; width:140px; margin:0px;">
                                                         {{#each masteryPages}}
-                                                        <li class="masteryPageSelect" align="left" on-click="selectMasteryPage:{{.}}">
+                                                        <li class="pageSelect" align="left" on-click="selectMasteryPage:{{.}}">
                                                             <div style="padding:5px;">
                                                                 {{name}}
                                                             </div>
                                                         </li>
                                                         {{/each}}
                                                         {{#if !validCurrentSummoner}}
-                                                        <li class="masteryPageSelect" align="left">
+                                                        <li class="pageSelect" align="left">
                                                             <div style="width:100%">
                                                                 <div style="opacity:0.5; padding:5px; cursor:default; background-color:gray; color:white;">
                                                                     No Summoner Entered
@@ -425,7 +411,7 @@
                 </tr>
             </table>
             </div>
-            <div style="margin-top:10px;">
+            <div align="center" style="margin-top:10px;">
                 <div align="left" style="width:750px;">
                     <table style="border-spacing:0; margin-bottom:-1px;">
                         <tr>
@@ -448,7 +434,7 @@
                     </table>
                 </div>
                 <div align="center" id="main-display">
-                    <div style="margin-top:10px; font-size:18px; color:white;">Spells</div>
+                    <div style="margin-top:10px; font-size:14px; color:white;">Spells</div>
                     <div style="width:280px;border-radius:10px; height:60px; border:1px solid white;">
                         {{#if !selectedChampion}}
                             <div style="margin-top:20px; color:rgba(256,256,256,0.5)">No champion selected</div>

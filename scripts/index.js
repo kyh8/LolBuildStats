@@ -4,6 +4,13 @@ var defaultMasteryPage = {
     defaultPage:true
 };
 
+var defaultRunePage = {
+    name:'Rune Page',
+    items:{},
+    stats:{},
+    defaultPage:true
+};
+
 var champStatVariables = [
     'hpregen','mpregen','apen','mpen','lifesteal','spellvamp',
     'crit','tenacity','attackdamage','abilitypower','armor',
@@ -44,6 +51,7 @@ $(document).ready(function(){
             popupWindow: 'none',
             popupActive: false,
             selectedMasteryPage: defaultMasteryPage,
+            selectedRunePage: defaultRunePage,
             summonerLoaded: true,
             keybindings:['Q','W','E','R'],
             stats:stats,
@@ -60,9 +68,6 @@ $(document).ready(function(){
     /* stats: */
     var stat_totals = [];   /* total stats, with level factored in */
     var r_m_stats = [];     /* result of mastery data + rune page data */
-    var rune_pages = [];    /* page name + stats */
-
-
 
     $.when(resources).done(function(r) {
         key = r.apiKey;
@@ -210,6 +215,7 @@ $(document).ready(function(){
     });
 
     $('#masteryPageDropdown').hide();
+    $('#runePageDropdown').hide();
     landingRactive.set('suppressed', false);
     $(document).click(function() {
         if(!landingRactive.get('suppressed')){
@@ -217,12 +223,36 @@ $(document).ready(function(){
                 $('#masteryPageDropdown').hide('blind', 300);
                 landingRactive.set('masteryPageSelectorActive', !landingRactive.get('masteryPageSelectorActive'));
             }
+
+            if(landingRactive.get('runePageSelectorActive')){
+                $('#runePageDropdown').hide('blind', 300);
+                landingRactive.set('runePageSelectorActive', !landingRactive.get('runePageSelectorActive'));
+            }
         }
+    });
+
+    landingRactive.on('selectRunePage', function(event, runePage){
+        landingRactive.set('suppressed', true);
+        if(landingRactive.get('masteryPageSelectorActive')){
+            $('#masteryPageDropdown').hide('blind', 300);
+            landingRactive.set('masteryPageSelectorActive', !landingRactive.get('masteryPageSelectorActive'));
+        }
+        $('#runePageDropdown').toggle('blind', 300, function() {
+            landingRactive.set('runePageSelectorActive', !landingRactive.get('runePageSelectorActive'));
+            if (runePage) {
+                landingRactive.set('selectedRunePage', runePage);
+            }
+            landingRactive.set('suppressed', false);
+        });
     });
 
     landingRactive.on('selectMasteryPage', function(event, masteryPage){
         //console.log(masteryPage);
         landingRactive.set('suppressed', true);
+        if(landingRactive.get('runePageSelectorActive')){
+            $('#runePageDropdown').hide('blind', 300);
+            landingRactive.set('runePageSelectorActive', !landingRactive.get('runePageSelectorActive'));
+        }
         $('#masteryPageDropdown').toggle('blind', 300, function(){
             landingRactive.set('masteryPageSelectorActive', !landingRactive.get('masteryPageSelectorActive'));
             if(masteryPage){
@@ -319,7 +349,9 @@ $(document).ready(function(){
             error: function(request, status, errorThrown){
                 if(errorThrown == 'Not Found'){
                     landingRactive.set('masteryPages', []);
+                    landingRactive.set('runePages', []);
                     landingRactive.set('selectedMasteryPage', defaultMasteryPage);
+                    landingRactive.set('selectedRunePage', defaultRunePage);
                     landingRactive.set('validCurrentSummoner', false);
                     landingRactive.set('summonerLoaded', true);
 
@@ -369,7 +401,7 @@ $(document).ready(function(){
                     }
                 });
                 $.when(rankedRequest).done(function(ranked){
-                    console.log(ranked);
+                    //console.log(ranked);
                     var stats = ranked[id];
                     for(var i = 0; i < stats.length; i++){
                         if(stats[i].queue == "RANKED_SOLO_5x5"){
@@ -384,14 +416,14 @@ $(document).ready(function(){
                                     leaguePoints = entries[j].leaguePoints;
                                 }
                             }
-                            console.log(tier + ' ' + division + ' - ' + leaguePoints);
+                            //console.log(tier + ' ' + division + ' - ' + leaguePoints);
                             var rank = tier + ' ' + division + ' - ' + leaguePoints + ' LP';
                             landingRactive.set('summonerRank', rank);
                         }
                     }
                 });
 
-                var runes_data = {}; /* static rune data  */
+                var allRunesData = {}; /* static rune data  */
 
                 var runesDataUrl = "https://global.api.pvp.net/api/lol/static-data/na/v1.2/rune?runeListData=stats&api_key="+key;
                 var runeDataRequest = $.ajax({
@@ -400,11 +432,16 @@ $(document).ready(function(){
                     type: "GET"
                 });
 
-                $.when(runeDataRequest).done(function(rune_d){
-                    for(var prop in rune_d.data){
+                $.when(runeDataRequest).done(function(runeData){
+                    console.log('all runes');
+                    console.log(runeData);
+                    for(var prop in runeData.data){
                         var stats = {};
-                        stats = rune_d.data[prop].stats;
-                        runes_data[rune_d.data[prop].id] = stats;
+                        stats = runeData.data[prop].stats;
+                        allRunesData[runeData.data[prop].id] = {
+                            stats:stats,
+                            name:runeData.data[prop].name
+                        };
                     }
 
                     var runesUrl = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/' + id + '/runes?api_key=' + key;
@@ -414,35 +451,47 @@ $(document).ready(function(){
                         type: "GET"
                     });
 
-                    $.when(runesRequest).done(function(runes_j){
-                        var runes = runes_j[id].pages;
+                    $.when(runesRequest).done(function(runeData){
+                        var runes = runeData[id].pages;
+                        var runePages = [];
+                        console.log('runes:');
+                        console.log(runes);
                         for(var i = 0; i < runes.length; i++){
-                            var rune_stats = {};
+                            var runeStats = {};
+                            var runeItems = {};
 
                             for(var j = 0; j < runes[i].slots.length; j++){
-                                var stats = runes_data[runes[i].slots[j].runeId];
+                                var runeId = runes[i].slots[j].runeId;
+                                if(runeItems.hasOwnProperty(runeId)){
+                                    runeItems[runeId]++;
+                                }
+                                else {
+                                    runeItems[runeId] = 1;
+                                }
+                                var stats = allRunesData[runeId].stats;
                                 for (var prop in stats){
                                     //console.log("prop: " + prop);
-                                    if (rune_stats.hasOwnProperty(prop)){
-                                        rune_stats[prop] += stats[prop];
+                                    if (runeStats.hasOwnProperty(prop)){
+                                        runeStats[prop] += stats[prop];
                                     } else {
-                                        rune_stats[prop] = stats[prop];
+                                        runeStats[prop] = stats[prop];
                                     }
                                 }
                             }
 
-                            var rune_page = {
-                                "name" : "",
-                                "stats" : {}
+                            var runePage = {
+                                "name" : runes[i].name,
+                                "stats" : runeStats,
+                                "items" : runeItems
                             };
 
-                            rune_page.name = runes[i].name;
-                            rune_page.stats = rune_stats;
-
-                            rune_pages.push(rune_page);
+                            runePages.push(runePage);
                         }
-                        console.log(rune_pages);
-
+                        console.log("RUNE PAGES");
+                        console.log(runePages);
+                        //console.log(allRunesData);
+                        landingRactive.set('selectedRunePage', defaultRunePage);
+                        landingRactive.set('runePages', runePages);
                     });
                 });
             }
@@ -542,9 +591,9 @@ function convertRunePage(p) {
     RuneDisplay = [];
     for (var page in p) {
         RuneDisplayPage.push(page.name);
-        for (var stats in p.rune_stats) {
+        for (var stats in p.runeStats) {
             var english = stats_english[stats];
-            var line = "+" + p.rune_stats[stats] + english;
+            var line = "+" + p.runeStats[stats] + english;
             RuneDisplayPage.push(line);
         }
         RuneDisplay.push[RuneDisplayPage];
