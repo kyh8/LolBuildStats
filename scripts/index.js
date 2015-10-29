@@ -295,6 +295,7 @@ $(document).ready(function(){
             });
         }
         else{
+            $(".runePage-tooltip").hide();
             $(".runePage").tooltip({
                 disable:true,
                 hide:true
