@@ -41,6 +41,8 @@ var statToVariable = {
 
 var stats = Object.keys(statToVariable);
 
+var mastery_stats = {};
+
 $(document).ready(function(){
     var landingRactive = new Ractive({
         el:"#landing",
@@ -68,13 +70,13 @@ $(document).ready(function(){
     var modVariables = {};
     var masteryTree = {};
 
-    /* stats: */
-    var stat_totals = [];   /* total stats, with level factored in */
-    var r_m_stats = [];     /* result of mastery data + rune page data */
-
     $.when(resources).done(function(r) {
         key = r.apiKey;
+        mastery_stats = r.mastery_stats;
         modVariables = r.stat_english;
+
+        console.log("mastery_stats: ");
+        console.log(mastery_stats);
         var url = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/mastery?api_key=' + key;
         var allMasteriesRequest = $.ajax({
             url: url,
@@ -329,6 +331,8 @@ $(document).ready(function(){
             if(masteryPage){
                 landingRactive.set('selectedMasteryPage', masteryPage);
                 //UPDATE CHAMP STATS HERE
+                updateChampStatsMastery(landingRactive);
+
             }
 
             landingRactive.set('suppressed', false);
@@ -610,6 +614,45 @@ function getBaseStats(championStats){
     }
 }
 
+function updateChampStatsMastery(LandingRactive){
+    var champStats = LandingRactive.get('champStats'); /* problem: default champ stats page! */
+    var selectedMasteryPage = LandingRactive.get('selectedMasteryPage');
+    var mod = [];
+
+    for(var prop in selectedMasteryPage.masteries){
+        var mastery_id = selectedMasteryPage.masteries[prop].id;
+        var mastery_rank = selectedMasteryPage.masteries[prop].rank;
+        var m_stats = mastery_stats[mastery_id].stats;
+        var m_values = mastery_stats[mastery_id].values;
+
+
+        for(var stat in m_stats) {
+            if (m_stats[0] && m_values[stat]) {
+
+                var s_stat = m_stats[stat];
+                var s_val = m_values[stat][mastery_rank - 1];
+
+                mod.push({
+                    "stat": s_stat,
+                    "value": s_val
+                });
+            }
+        }
+
+    }
+    console.log(mod);
+    /* re-calculate stats. Base-stats, per-level and flat. Champ -> runes -> masteries. Then factor in percentages. */
+
+}
+
+
+
+
+
+
+
+/* below is all garb: */
+
 /*
     CurrentLevel = level selected from scroll bar
 
@@ -660,19 +703,3 @@ function processRunePage(page){ /* page is the rune page to be converted into st
     }
 }
 
-/* for converting a rune page into readable */
-/* stats_english = r.stat_english */
-function convertRunePage(p) {
-    RuneDisplayPage = [];
-    RuneDisplay = [];
-    for (var page in p) {
-        RuneDisplayPage.push(page.name);
-        for (var stats in p.runeStats) {
-            var english = stats_english[stats];
-            var line = "+" + p.runeStats[stats] + english;
-            RuneDisplayPage.push(line);
-        }
-        RuneDisplay.push[RuneDisplayPage];
-        RuneDisplayPage = [];
-    }
-}
