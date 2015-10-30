@@ -661,23 +661,25 @@ function getBaseChampStats(championStats){
 }
 
 function updateStats(LandingRactive, rune, mastery, items){
+    /* update stats:*/
     if (rune){
         updateChampStatsRunes(LandingRactive);
     }
     if (mastery){
         updateChampStatsMastery(LandingRactive);
     }
-    if(items){
-        updateChampStatsItems(LandingRactive)
+    if (items){
+        updateChampStatsItems(LandingRactive);
     }
-    /* now we need to calculate everything */
+
+    /* calculate: */
+
     /*
     Resources:
     > level_to_other
     > stat_type
     > flat_to_stat [to be written still]
      */
-
 
     var level = LandingRactive.get('championLevel');
     var champStats = LandingRactive.get('baseChampStats')[0]; /* base */
