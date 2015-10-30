@@ -54,6 +54,10 @@ $(document).ready(function(){
             popupActive: false,
             selectedMasteryPage: defaultMasteryPage,
             selectedRunePage: defaultRunePage,
+            masteryStats: {},
+            runeStats: {},
+            baseChampStats: {},
+            itemStats: {},
             summonerLoaded: true,
             keybindings:['Q','W','E','R'],
             stats:stats,
@@ -314,6 +318,7 @@ $(document).ready(function(){
             if (runePage) {
                 landingRactive.set('selectedRunePage', runePage);
                 // UPDATE CHAMP STATS HERE
+                updateStats(landingRactive, true, false, false);
             }
             landingRactive.set('suppressed', false);
         });
@@ -331,8 +336,7 @@ $(document).ready(function(){
             if(masteryPage){
                 landingRactive.set('selectedMasteryPage', masteryPage);
                 //UPDATE CHAMP STATS HERE
-                updateChampStatsMastery(landingRactive);
-
+                updateStats(landingRactive, false, true, false);
             }
 
             landingRactive.set('suppressed', false);
@@ -407,7 +411,10 @@ $(document).ready(function(){
         landingRactive.set('selectedChampion', champion);
         console.log(champion);
         var displayedStats = getBaseStats(champion.stats);
+        var baseChampStats = getBaseChampStats(champion.stats);
         landingRactive.set('champStats', displayedStats);
+        landingRactive.set('baseChampStats', baseChampStats);
+
         closePopup(landingRactive);
     });
 
@@ -614,10 +621,137 @@ function getBaseStats(championStats){
     }
 }
 
+function getBaseChampStats(championStats){
+    return[{
+        hpregen: championStats.hpregen,
+        mpregen: championStats.mpregen,
+        apen: 0,
+        mpen: 0,
+        lifesteal: 0,
+        spellvamp: 0,
+        crit: championStats.crit,
+        tenacity: 0,
+        attackdamage: championStats.attackdamage,
+        abilitypower: 0,
+        armor: championStats.armor,
+        spellblock: championStats.spellblock,
+        attackspeed: Math.round((0.625 / (1 + championStats.attackspeedoffset)) * 1000) / 1000,
+        cdr: 0,
+        attackrange: championStats.attackrange,
+        movespeed: championStats.movespeed,
+        hp: championStats.hp,
+        mp: championStats.mp
+    },
+        [{
+            "mpperlevel": championStats.mpperlevel,
+            "hpperlevel": championStats.hpperlevel,
+            "attackdamageperlevel": championStats.attackdamageperlevel,
+            "mpregenperlevel": championStats.mpregenperlevel,
+            "critperlevel": championStats.critperlevel,
+            "spellblockperlevel": championStats.spellblockperlevel,
+            "attackspeedperlevel": championStats.attackspeedperlevel,
+            "hpregenperlevel": championStats.hpregenperlevel,
+            "armorperlevel": championStats.armorperlevel,
+
+        },
+        {
+            "attackspeedoffset": championStats.armorperlevel,
+        }]
+    ]
+}
+
+function updateStats(LandingRactive, rune, mastery, items){
+    if (rune){
+        updateChampStatsRunes(LandingRactive);
+    }
+    if (mastery){
+        updateChampStatsMastery(LandingRactive);
+    }
+    if(items){
+        updateChampStatsItems(LandingRactive)
+    }
+    /* now we need to calculate everything */
+    /*
+    Resources:
+    > level_to_other
+    > stat_type
+    > flat_to_stat [to be written still]
+     */
+
+
+    var level = LandingRactive.get('championLevel');
+    var champStats = LandingRactive.get('baseChampStats')[0]; /* base */
+    var champPerLevelStats = LandingRactive.get('baseChampStats')[1][0];
+    var attackSpeedOffset = LandingRactive.get('baseChampStats')[1][1];
+
+    var flatStats = {}; /* flatStats to add */
+    var percentStats = {}; /* stats to be factored in after flat */
+    var levelStats = {}; /* stats to be converted and added correctly to category */
+
+    var runeStats = LandingRactive.get('runeStats');
+    var masteryStats = LandingRactive.get('masteryStats');
+    var itemStats = LandingRactive.get('itemStats');
+
+    for (var stat in champPerLevelStats){
+        var real_stat = stat.replace('PerLevel', '');
+        flatStats[real_stat] += champPerLevelStats[stat] * (level - 1);
+    }
+
+    /* move stats to flat / percent */
+    for (var prop in runeStats){
+        switch(stat_type[prop]){
+            case "flat":
+
+                break;
+            case "%":
+
+                break;
+            case "level":
+
+                break;
+        }
+    }
+
+    /* move stats to flat / percent */
+    for (var prop in masteryStats){
+        switch(stat_type[prop]){
+            case "flat":
+
+                break;
+            case "%":
+
+                break;
+            case "level":
+
+                break;
+        }
+    }
+
+    /* move stats to flat / percent */
+    for (var prop in itemStats){
+        switch(stat_type[prop]){
+            case "flat":
+
+                break;
+            case "%":
+
+                break;
+            case "level":
+
+                break;
+        }
+    }
+    /* convert level to flat/percentage */
+
+    /* add flat to stats */
+
+    /* multiply percentage in */
+}
+
+
 function updateChampStatsMastery(LandingRactive){
-    var champStats = LandingRactive.get('champStats'); /* problem: default champ stats page! */
     var selectedMasteryPage = LandingRactive.get('selectedMasteryPage');
-    var mod = [];
+    var mod = {};
 
     for(var prop in selectedMasteryPage.masteries){
         var mastery_id = selectedMasteryPage.masteries[prop].id;
@@ -632,74 +766,26 @@ function updateChampStatsMastery(LandingRactive){
                 var s_stat = m_stats[stat];
                 var s_val = m_values[stat][mastery_rank - 1];
 
-                mod.push({
-                    "stat": s_stat,
-                    "value": s_val
-                });
+                mod[s_stat] = s_val;
             }
         }
 
     }
     console.log(mod);
-    /* re-calculate stats. Base-stats, per-level and flat. Champ -> runes -> masteries. Then factor in percentages. */
+    LandingRactive.set('currentMasteryStats', mod);
+}
+
+function updateChampStatsRunes(LandingRactive){
+    var selectedRunePage = LandingRactive.get('selectedRunePage');
+    var mod = selectedRunePage.stats;
+    console.log(mod);
+    LandingRactive.set('currentRuneStats', mod);
+}
+
+function updateChampStatsItems(LandingRactive){
+    /* update item stats */
+    /* under the assumption there will be a SelectedItems... */
 
 }
 
-
-
-
-
-
-
-/* below is all garb: */
-
-/*
-    CurrentLevel = level selected from scroll bar
-
-    CurrentMasteryPage = current selected mastery page with id, id, and # of ranks, points.
-    CurrentRunePage = current selected rune page name, name and stats, stats.
-
-    CurrentItems = listOfItemsById
-
-    CurrentItemStats = stats from the items
-    CurrentMasteryStats = stats from the mastery page
-    CurrentRuneStats = stats from the rune page
-    CurrentChampionStats = based off selected champion
-
-    TotalStats = accumlation of all stats and factors in CurrentLevel
-
-    Note: Whenever one is changed, the whole TotalStats needs be re-calculated
-
-    mastery_stats = the hardcoded stats, must be pulled from resources [r.mastery_stats]
- */
-
-
-
-
-function processMasteries(m) { /* m is the mastery page to be converted into stats */
-    CurrentMasteryStats = {};  /* erase current stats */
-
-
-    for (var point in m) {
-        for (var i = 0; i < mastery_stats[point.id].stats.length; i++) {
-            if (CurrentMasteryStats.hasOwnProperty(mastery_stats[point.id].stats[i])){
-                CurrentMasteryStats[mastery_stats[point.id].stats[i]] += mastery_stats[point.id].values[i][point.points];
-            } else {
-                CurrentMasteryStats[mastery_stats[point.id].stats[i]] = mastery_stats[point.id].values[i][point.points];
-            }
-        }
-    }
-}
-
-function processRunePage(page){ /* page is the rune page to be converted into stats */
-    CurrentRuneStats = {};      /* erase current stats */
-
-    for (var stat in page.stats){
-        if (CurrentRuneStats.hasOwnProperty(stat)){
-            CurrentRuneStats[stat] += page[stat];
-        } else {
-            CurrentRuneStats[stat] = page[stat];
-        }
-    }
-}
 
