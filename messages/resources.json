@@ -413,7 +413,6 @@
     "rFlatTimeDeadMod" : "flat",
     "rPercentCooldownMod" : "cdr",
     "Tenacity" : "tenacity"
-
   },
   "tags": [
     ["CooldownReduction", "CDR"],
