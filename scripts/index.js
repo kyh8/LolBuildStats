@@ -42,6 +42,9 @@ var statToVariable = {
 var stats = Object.keys(statToVariable);
 
 var mastery_stats = {};
+var level_to_other = {};
+var stat_type = {};
+var flat_to_stat = {};
 
 $(document).ready(function(){
     var landingRactive = new Ractive({
@@ -78,6 +81,9 @@ $(document).ready(function(){
         key = r.apiKey;
         mastery_stats = r.mastery_stats;
         modVariables = r.stat_english;
+        stat_type = r.stat_type;
+        level_to_other = r.level_to_other;
+        flat_to_stat = r.flat_to_stat;
 
         console.log("mastery_stats: ");
         console.log(mastery_stats);
@@ -635,7 +641,7 @@ function getBaseChampStats(championStats){
         abilitypower: 0,
         armor: championStats.armor,
         spellblock: championStats.spellblock,
-        attackspeed: Math.round((0.625 / (1 + championStats.attackspeedoffset)) * 1000) / 1000,
+        attackspeed: 0,
         cdr: 0,
         attackrange: championStats.attackrange,
         movespeed: championStats.movespeed,
@@ -674,47 +680,35 @@ function updateStats(LandingRactive, rune, mastery, items){
 
     /* calculate: */
 
-    /*
-    Resources:
-    > level_to_other
-    > stat_type
-    > flat_to_stat [import all still]
-     */
-
     var level = LandingRactive.get('championLevel');
     var champStats = LandingRactive.get('baseChampStats')[0]; /* base */
     var champPerLevelStats = LandingRactive.get('baseChampStats')[1][0];
-    var attackSpeedOffset = LandingRactive.get('baseChampStats')[1][1];
+    var attackspeedoffset = LandingRactive.get('baseChampStats')[1][1]['attackspeedoffset'];
 
     var flatStats = {};     /* flatStats to add */
     var percentStats = {};  /* stats to be factored in after flat */
     var levelStats = {};    /* stats to be converted and added correctly to category */
 
-    var runeStats = LandingRactive.get('runeStats');
-    var masteryStats = LandingRactive.get('masteryStats');
+    var runeStats = LandingRactive.get('currentRuneStats');
+    var masteryStats = LandingRactive.get('currentMasteryStats');
     var itemStats = LandingRactive.get('itemStats');
 
+    console.log('BASE champStats');
+    console.log(champStats);
+
+    champStats['attackspeed'] = 0;
+    console.log('attackspeed set 0');
+    console.log(champStats['attackspeed']);
+
     for (var stat in champPerLevelStats){
-        var real_stat = stat.replace('PerLevel', '');
-        flatStats[real_stat] += champPerLevelStats[stat] * (level - 1);
+        var real_stat = stat.replace('perlevel', '');
+        champStats[real_stat] += champPerLevelStats[stat] * (level - 1);
     }
 
-    /* move stats to flat / percent */
-    for (var prop in runeStats){
-        switch(stat_type[prop]){
-            case "flat":
-                flatStats[prop] = runeStats[prop];
-                break;
-            case "%":
-                percentStats[prop] = runeStats[prop];
-                break;
-            case "level":
-                levelStats[prop] = levelStats[prop];
-                break;
-        }
-    }
 
-    /* move stats to flat / percent */
+    console.log('attackspeed post per level');
+    console.log(champStats['attackspeed']);
+
     for (var prop in masteryStats){
         switch(stat_type[prop]){
             case "flat":
@@ -729,7 +723,21 @@ function updateStats(LandingRactive, rune, mastery, items){
         }
     }
 
-    /* move stats to flat / percent */
+    for (var prop in runeStats){
+        switch(stat_type[prop]){
+            case "flat":
+                flatStats[prop] = runeStats[prop];
+                break;
+            case "%":
+                percentStats[prop] = runeStats[prop];
+                break;
+            case "level":
+                levelStats[prop] = runeStats[prop];
+                break;
+        }
+    }
+
+
     for (var prop in itemStats){
         switch(stat_type[prop]){
             case "flat":
@@ -743,9 +751,8 @@ function updateStats(LandingRactive, rune, mastery, items){
                 break;
         }
     }
-    /* convert level to flat/percentage */
-    for (var prop in percentStats){
-        /* move to correct category, if in / if not in, multiply * level */
+
+    for (var prop in levelStats){
         switch(stat_type[level_to_other[prop]]){
             case "flat":
                 if (flatStats.hasOwnProperty(level_to_other[prop])) {
@@ -763,9 +770,30 @@ function updateStats(LandingRactive, rune, mastery, items){
                 break;
         }
     }
-    /* add flat to stats */
+    for (var prop in flatStats){
+        console.log("adding to champStats!");
+        champStats[flat_to_stat[prop]] += flatStats[prop];
+    }
+    for (var prop in percentStats){
+        var real_stat = prop.replace('Percent','Flat');
+        console.log(real_stat);
+        champStats[real_stat] *= (1 + percentStats[prop]);
+    }
 
-    /* multiply percentage in */
+
+
+    var base = 0.625 / (1 + attackspeedoffset * (1/100));
+
+    champStats['attackspeed'] = Math.round(base * (1 + champStats['attackspeed']) * 1000) / 1000;
+    console.log('UPDATED CHAMP STATS');
+    console.log(champStats);
+
+    for (var prop in champStats) {
+        champStats.prop = Math.round(champStats[prop] * 1000) / 1000;
+    }
+
+    LandingRactive.set('champStats', champStats);
+
 }
 
 
@@ -791,6 +819,7 @@ function updateChampStatsMastery(LandingRactive){
         }
 
     }
+    console.log("updating mastery stats...");
     console.log(mod);
     LandingRactive.set('currentMasteryStats', mod);
 }
