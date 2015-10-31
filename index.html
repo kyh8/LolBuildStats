@@ -208,21 +208,25 @@
     #main-display{
         width:800px;
         height:450px;
+        max-height:450px;
+        overflow:hidden;
+        overflow-y: auto;
         background-color:rgba(0,0,0,0.8);
-        border-radius:10px;
+        border-radius:5px;
         border:1px solid white;
+        display:inline-block;
     }
 
     .tab{
         background-color:rgba(0,0,0,0.8);
         height:20px;
+        width:60px;
         border:1px solid white;
-        border-bottom:none;
-        /*border-top-left-radius:10px;*/
-        /*border-top-right-radius:10px;*/
-        padding:5px 15px;
+        border-right:none;
+        padding:5px 10px;
         color:white;
         cursor:pointer;
+        text-align:center;
     }
 
     .tab:hover{
@@ -235,6 +239,71 @@
         background-color:white;
     }
 
+    .skillPointContainer{
+        width:30px;
+        border-radius:5px;
+        height:30px;
+        border:1px solid white;
+    }
+
+    .skillPointContainer.selected.selectable{
+        box-shadow:0 0 5px 0 #50c4e6;
+        border:1px solid #50c4e6;
+        cursor:pointer;
+    }
+
+    .skillPointContainer.selected.selectable:hover{
+        background-color:lightblue;
+        box-shadow:inset 0 0 10px black;
+    }
+
+    .skillPoint{
+        width:16px;
+        height:16px;
+        border-radius:5px;
+        border:1px solid white;
+        background-color:lightblue;
+        margin-left:6px;
+        margin-top:6px;
+    }
+
+    .button{
+        display:inline-block;
+        width:60px;
+        height:16px;
+        border:1px solid white;
+        border-radius:5px;
+        padding:5px;
+        padding-top:2px;
+        color:white;
+        cursor:pointer;
+    }
+
+    .button:hover{
+        box-shadow:0 0 5px 0 white;
+    }
+
+    #skillOrderButtons{
+        margin-top:8px;
+    }
+
+    #resetSkillOrder{
+        background-color:red;
+    }
+
+    #confirmSkillOrder{
+        background-color:green;
+    }
+
+    #confirmSkillOrder.unfinished{
+        background-color:gray;
+        color:rgba(256,256,256,0.5);
+        cursor:default;
+    }
+
+    #confirmSkillOrder.unfinished:hover{
+        box-shadow:none;
+    }
 </style>
 <body id="page-body" style="background-image:url(http://na.leagueoflegends.com/sites/default/files/upload/art/teambuilder-wallpaper.jpg)">
     <script id="landing-template" type="type/ractive">
@@ -374,7 +443,7 @@
                                                         {{#if !validCurrentSummoner}}
                                                         <li class="pageSelect" align="left">
                                                             <div style="width:100%">
-                                                                <div style="opacity:0.5; padding:5px; cursor:default; background-color:#3a3a3a; color:white;">
+                                                                <div style="padding:5px; cursor:default; background-color:#3a3a3a; color:white;">
                                                                     No Summoner Entered
                                                                 </div>
                                                             </div>
@@ -444,109 +513,163 @@
             </table>
             </div>
             <div align="center" style="margin-top:10px;">
-                <div align="left" style="width:750px;">
-                    <table style="border-spacing:0; margin-bottom:-1px;">
-                        <tr>
-                            <td>
-                                <div class="tab selected">
-                                    Stats
-                                </div>
-                            </td>
-                            <td>
-                                <div class="tab">
-                                    Items
-                                </div>
-                            </td>
-                            <td>
-                                <div class="tab">
-                                    Abilities
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div align="center" id="main-display">
-                    <div style="margin-top:10px; font-size:14px; color:white;">Spells</div>
-                    <div style="width:280px;border-radius:10px; height:60px; border:1px solid white;">
-                        {{#if !selectedChampion}}
-                            <div style="margin-top:20px; color:rgba(256,256,256,0.5)">No champion selected</div>
-                        {{/if}}
-                        <div style="margin-top:2px;">
-                        <table cellpadding=5>
+                <div style="width:800px; position:relative;">
+                    <div style="width:80px; vertical-align:top; position:absolute; top:10px; left:-82px; display:inline-block;">
+                        <table style="border-spacing:0;">
                             <tr>
-                                {{#if selectedChampion}}
                                 <td>
-                                    <div style="border-radius:5px; width:40px; height:40px; border:1px solid white;">
-                                        <img style="border-radius:5px;" src="{{"http://ddragon.leagueoflegends.com/cdn/5.21.1/img/passive/" + selectedChampion.passive.image.full}}" width=40 height=40>
+                                    <div class="tab selected">
+                                        Stats
                                     </div>
                                 </td>
-                                {{/if}}
-
-                                {{#each selectedChampion.spells:i}}
+                            </tr>
+                            <tr>
                                 <td>
-                                    <div style="border-radius:5px; border-bottom-left-radius:0; position:relative; width:40px; height:40px; border:1px solid white;">
-                                        <img style="border-radius:5px;" src="{{"http://ddragon.leagueoflegends.com/cdn/5.21.1/img/spell/" + image.full}}" width=40 height=40>
-                                        <div style="border:1px solid black; background-color:transparent; width:6px; height:6px; position:absolute; bottom:-1px; left:-1px; border-top:0; border-right:0;"></div>
-                                        <div align="right" style="position:absolute; bottom:-5px; left:-3px; color:gold; font-size:10px;">{{keybindings[i]}}</div>
+                                    <div class="tab">
+                                        Items
                                     </div>
                                 </td>
-                                {{/each}}
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="tab">
+                                        Abilities
+                                    </div>
+                                </td>
                             </tr>
                         </table>
-                        </div>
                     </div>
-                    <div style="margin-top:10px; border:1px solid white; width:360px; border-radius:10px;">
+                    <div align="center" id="main-display">
+                        <div style="margin-top:10px; font-size:14px; color:white;">Spells</div>
+                        <div style="width:280px;border-radius:10px; {{!selectedChampion ? 'height:60px;' : 'padding-bottom:2px;'}} border:1px solid white;">
+                            {{#if !selectedChampion}}
+                                <div style="margin-top:20px; color:rgba(256,256,256,0.5)">No champion selected</div>
+                            {{/if}}
+                            <div style="margin-top:2px;">
+                            <table cellpadding=5>
+                                {{#each selectedChampion.modifiedSpells:i}}
+                                <tr>
+                                    {{#if selectedChampion}}
+                                    <td>
+                                        <div style="width:40px; height:40px; {{i == 0 ? 'border:1px solid white; border-radius:5px;' : ''}}">
+                                            {{#if i == 0}}
+                                            <img style="border-radius:5px;" src="{{"http://ddragon.leagueoflegends.com/cdn/5.21.1/img/passive/" + selectedChampion.passive.image.full}}" width=40 height=40>
+                                            {{/if}}
+                                        </div>
+                                    </td>
+                                    {{/if}}
 
-                        <table>
-                            <tr>
-                                <td>
-                                    <table>
-                                        {{#each stats.slice(0,9)}}
-                                        <tr>
-                                            <td>
-                                                <div align="right" style="color:lightblue; font-size:12px;">
-                                                    {{.}}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div style="color:white;">
-                                                    -->
-                                                </div>
-                                            </td>
-                                            <td style="width:50px;">
-                                                <div style="margin-top:3px; color:white; font-size: 12px;">
-                                                    {{champStats[statToVariable[this]]}}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {{/each}}
-                                    </table>
-                                </td>
-                                <td>
-                                    <table>
-                                        {{#each stats.slice(9,18)}}
-                                        <tr>
-                                            <td>
-                                                <div align="right" style="color:lightblue; font-size:12px;">
-                                                    {{.}}
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div style="color:white;">
-                                                    -->
-                                                </div>
-                                            </td>
-                                            <td style="width:50px;">
-                                                <div style="margin-top:3px; color:white; font-size:12px;">
-                                                    {{champStats[statToVariable[this]]}}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {{/each}}
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
+                                    {{#each selectedChampion.modifiedSpells[i]:j}}
+                                    <td>
+                                        <div style="border-radius:5px; border-bottom-left-radius:0; position:relative; width:40px; height:40px; border:1px solid white;">
+                                            <img style="border-radius:5px;" src="{{"http://ddragon.leagueoflegends.com/cdn/5.21.1/img/spell/" + image.full}}" width=40 height=40>
+                                            <div style="border:1px solid black; background-color:transparent; width:6px; height:6px; position:absolute; bottom:-1px; left:-1px; border-top:0; border-right:0;"></div>
+                                            <div align="right" style="position:absolute; bottom:-5px; left:-3px; color:gold; font-size:10px;">{{keybindings[j]}}</div>
+                                        </div>
+                                    </td>
+                                    {{/each}}
+                                </tr>
+                                {{/each}}
+                            </table>
+                            </div>
+                        </div>
+                        <div style="position:relative; margin-top:10px; width:700px; height:200px; border-radius:5px; margin-bottom:10px; border:1px solid white; padding:10px 0;">
+                            {{#if selectedChampion}}
+                            <table>
+                                <tr>
+                                    <th>
+
+                                    </th>
+                                    {{#each levels}}
+                                    <td>
+                                        <div align="center" style="font-size:16px; color:white;">{{.}}</div>
+                                    </td>
+                                    {{/each}}
+                                </tr>
+                                {{#each selectedChampion.modifiedSpells[0]:i}}
+                                <tr>
+                                    <td>
+                                        <div style="width:30px; height:30px; text-align:center; border-radius:5px; border:1px solid white; position:relative;">
+                                            <img style="border-radius:5px;" src="{{"http://ddragon.leagueoflegends.com/cdn/5.21.1/img/spell/" + image.full}}" width=30 height=30>
+                                            <div style="font-weight:600; position:absolute; top:3px; {{i <= 1 ? 'left:6px;' : 'left:8px;'}} z-index: 500; font-size:20px; color:white; text-shadow:2px 2px black;">{{keybindings[i]}}</div>
+                                        </div>
+                                    </td>
+                                    {{#each levels}}
+                                    <td>
+                                        <div on-click="levelSkill:{{this}},{{i}}" class="skillPointContainer {{this == selectedLevel ? 'selected' : ''}} {{this==selectedLevel && skillOrder[selectedLevel][i].selectable ? 'selectable' : ''}}" style="{{this == selectedLevel ? '' : 'cursor:default;'}}">
+                                            {{#if skillOrder[this][i].selected}}
+                                                <div class="skillPoint"></div>
+                                            {{/if}}
+                                        </div>
+                                    </td>
+                                    {{/each}}
+                                </tr>
+                                {{/each}}
+                            </table>
+                            <div align="center" id="skillOrderButtons">
+                                <div class="button {{finishedSkillOrder ? '' : 'unfinished'}}" id="confirmSkillOrder">
+                                    Ok
+                                </div>
+                                <div on-click="resetSkillOrder" class="button" id="resetSkillOrder">
+                                    Reset
+                                </div>
+                            </div>
+                            {{else}}
+                                <div style="font-size:36px; color:rgba(256,256,256,0.5); margin-top:80px;">No Champion Selected</div>
+                            {{/if}}
+                        </div>
+                        <div style="margin-top:10px; margin-bottom:10px; border:1px solid white; width:360px; border-radius:10px;">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <table>
+                                            {{#each stats.slice(0,9)}}
+                                            <tr>
+                                                <td>
+                                                    <div align="right" style="color:lightblue; font-size:12px;">
+                                                        {{.}}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div style="color:white;">
+                                                        -->
+                                                    </div>
+                                                </td>
+                                                <td style="width:50px;">
+                                                    <div style="margin-top:3px; color:white; font-size: 12px;">
+                                                        {{champStats[statToVariable[this]]}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {{/each}}
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table>
+                                            {{#each stats.slice(9,18)}}
+                                            <tr>
+                                                <td>
+                                                    <div align="right" style="color:lightblue; font-size:12px;">
+                                                        {{.}}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div style="color:white;">
+                                                        -->
+                                                    </div>
+                                                </td>
+                                                <td style="width:50px;">
+                                                    <div style="margin-top:3px; color:white; font-size:12px;">
+                                                        {{champStats[statToVariable[this]]}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {{/each}}
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
