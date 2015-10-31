@@ -40,6 +40,10 @@ var statToVariable = {
 };
 
 var stats = Object.keys(statToVariable);
+var levels = [];
+for(var i = 1; i <= 18; i++){
+    levels.push(i);
+}
 
 var mastery_stats = {};
 var level_to_other = {};
@@ -65,7 +69,8 @@ $(document).ready(function(){
             keybindings:['Q','W','E','R'],
             stats:stats,
             statToVariable:statToVariable,
-            championLevel:1
+            championLevel:1,
+            levels:levels
         }
     });
     var key;
@@ -226,7 +231,7 @@ $(document).ready(function(){
     });
 
     landingRactive.on('indexTest', function(event, object){
-        console.log(object);
+        //console.log(object);
     });
 
     $('#masteryPageDropdown').hide();
@@ -263,7 +268,6 @@ $(document).ready(function(){
                         var index = temp[1];
                         var runePages = landingRactive.get('runePages');
                         var page = runePages[index];
-                        console.log(page);
 
                         var tooltipContent = '<div><div style="display:inline-block;">';
                         for (var item in page.items){
@@ -346,9 +350,9 @@ $(document).ready(function(){
             }
 
             landingRactive.set('suppressed', false);
-            console.log(masteryPage.masteries);
+            //console.log(masteryPage.masteries);
             if(!landingRactive.get('masteryPageSelectorActive') && masteryPage.masteries.length > 0){
-                console.log('update mastery page');
+                //console.log('update mastery page');
                 var reference = landingRactive.get('masteriesReference');
                 var update = {};
                 var treeTotals = [0,0,0];
@@ -359,7 +363,7 @@ $(document).ready(function(){
 
                 masteryPage.masteries.forEach(function(mastery){
                     var indices = reference[mastery.id];
-                    console.log(indices);
+                    //console.log(indices);
                     update['masteryTrees.'+indices[0]+'.'+indices[1]+'.'+indices[2]+'.points'] = mastery.rank;
                     treeTotals[indices[0]]+=mastery.rank;
                 });
@@ -413,19 +417,81 @@ $(document).ready(function(){
         });
     });
 
+    landingRactive.on('resetSkillOrder', function(){
+        resetSkillOrder(landingRactive);
+    });
+
+    landingRactive.on('levelSkill', function(event, level, skill){
+        if(level != landingRactive.get('selectedLevel') || !landingRactive.get('skillOrder')[level][skill].selectable){
+            return;
+        }
+        var skillOrder = landingRactive.get('skillOrder');
+        skillOrder[level][skill].selected = true;
+        if(skill == 3){
+            landingRactive.set('ultPoints', landingRactive.get('ultPoints')-1);
+        }
+        var skills = landingRactive.get('keybindings');
+        var current = landingRactive.get('currentSkillOrder');
+        current.push(skills[skill]);
+
+        landingRactive.set('skillOrder', skillOrder);
+
+        var currentLevel = landingRactive.get('selectedLevel');
+        if(currentLevel < 18){
+            currentLevel++;
+            console.log('current level: ' + currentLevel);
+            var champion = landingRactive.get('selectedChampion');
+            for(var i = 0; i <= 2; i++){
+                console.log('max rank [' + i + ']: ' + champion.spells[i].maxrank);
+                skillOrder[currentLevel][i].selectable = getTimesLeveled(landingRactive, skills[i]) < champion.spells[i].maxrank &&
+                    getTimesLeveled(landingRactive, skills[i]) < Math.ceil(currentLevel/2);
+            }
+            if([6,11,16].indexOf(currentLevel) != -1 && champion.name != 'Udyr'){
+                landingRactive.set('ultPoints', landingRactive.get('ultPoints')+1);
+            }
+            console.log('ult max rank: ' + champion.spells[3].maxrank);
+            skillOrder[currentLevel][3].selectable = getTimesLeveled(landingRactive, skills[3]) < champion.spells[3].maxrank &&
+                getTimesLeveled(landingRactive, skills[3]) < Math.ceil(currentLevel/2) && landingRactive.get('ultPoints') > 0;
+            landingRactive.set('selectedLevel', currentLevel);
+        } else if(currentLevel == 18){
+            landingRactive.set('selectedLevel', 0);
+            landingRactive.set('finishedSkillOrder', true);
+        }
+    });
+
     landingRactive.on('selectChampion', function(event, champion){
+        var spells = champion.spells;
+        var newspells = [];
+        var temp = 1;
+        var row = [];
+        for(var i = 0; i < spells.length; i++){
+            if(Math.ceil((i+1)/4) == temp){
+                row.push(spells[i]);
+            } else {
+                temp = Math.ceil((i+1)/4);
+                newspells.push(row);
+                row = [spells[i]];
+            }
+            if(i == spells.length-1){
+                newspells.push(row);
+            }
+        }
+        champion.modifiedSpells = newspells;
         landingRactive.set('selectedChampion', champion);
-        console.log(champion);
         var displayedStats = getBaseStats(champion.stats);
         var baseChampStats = getBaseChampStats(champion.stats);
         landingRactive.set('champStats', displayedStats);
+        resetSkillOrder(landingRactive);
+        console.log(champion);
         landingRactive.set('baseChampStats', baseChampStats);
-
         closePopup(landingRactive);
     });
 
     landingRactive.on('getSummoner', function(){
         var summoner = landingRactive.get('summonerName');
+        if(summoner.length == 0){
+            return;
+        }
 
         landingRactive.set('currentSummoner', summoner);
         landingRactive.set('validCurrentSummoner', true);
@@ -452,9 +518,9 @@ $(document).ready(function(){
         });
 
         $.when(request).done(function(s){
-            console.log(s);
+            //console.log(s);
             for(var summoner in s){
-                console.log(s[summoner].id);
+                //console.log(s[summoner].id);
                 var id = s[summoner].id;
 
                 var masteryUrl = 'https://na.api.pvp.net/api/lol/na/v1.4/summoner/'+ id + '/masteries?api_key=' + key;
@@ -472,8 +538,8 @@ $(document).ready(function(){
                         masteryPage.masteries = page.masteries;
                         masteryPages.push(masteryPage);
                     });
-                    console.log('masteries:');
-                    console.log(masteryPages);
+                    //console.log('masteries:');
+                    //console.log(masteryPages);
                     landingRactive.set('selectedMasteryPage', defaultMasteryPage);
                     landingRactive.set('masteryPages', masteryPages);
                     landingRactive.set('summonerLoaded', true);
@@ -524,8 +590,8 @@ $(document).ready(function(){
                 });
 
                 $.when(runeDataRequest).done(function(runeData){
-                    console.log('all runes');
-                    console.log(runeData);
+                    //console.log('all runes');
+                    //console.log(runeData);
                     for(var prop in runeData.data){
                         allRunesData[runeData.data[prop].id] = {
                             stats:runeData.data[prop].stats,
@@ -544,11 +610,15 @@ $(document).ready(function(){
                     $.when(runesRequest).done(function(runeData){
                         var runes = runeData[id].pages;
                         var runePages = [];
+                        console.log('rune data');
+                        console.log(runes);
                         for(var i = 0; i < runes.length; i++){
                             var runeStats = {};
                             var runeItems = {};
                             var runeImages = {};
-
+                            if(!runes[i].slots){
+                                continue;
+                            }
                             for(var j = 0; j < runes[i].slots.length; j++){
                                 var runeId = runes[i].slots[j].runeId;
                                 if(runeItems.hasOwnProperty(runeId)){
@@ -580,9 +650,9 @@ $(document).ready(function(){
 
                             runePages.push(runePage);
                         }
-                        console.log("RUNE PAGES");
+                        //console.log("RUNE PAGES");
                         //console.log(runePages);
-                        console.log(allRunesData);
+                        //console.log(allRunesData);
                         landingRactive.set('selectedRunePage', defaultRunePage);
                         landingRactive.set('runePages', runePages);
                     });
@@ -602,6 +672,55 @@ function openPopup(landingRactive, type){
 function closePopup(landingRactive){
     landingRactive.set('popupActive', false);
     landingRactive.set('popupWindow', 'none');
+}
+
+function resetSkillOrder(landingRactive){
+    var skillOrder = {};
+    for(var i = 1; i <= 18; i++){
+        skillOrder[i] = {
+            0:{
+                selected:false,
+                selectable:true
+            },
+            1:{
+                selected:false,
+                selectable:true
+            },
+            2:{
+                selected:false,
+                selectable:true
+            },
+            3:{
+                selected:false,
+                selectable:true
+            }
+        };
+    }
+    var champion = landingRactive.get('selectedChampion');
+    landingRactive.set('ultPoints', 0);
+    if(champion.name != "Udyr"){
+        skillOrder[1][3].selectable = false;
+    } else{
+        landingRactive.set('ultPoints', 5);
+    }
+    if(["Jayce", "Nidalee", "Elise"].indexOf(champion.name) != -1){
+        landingRactive.set('ultPoints', 1);
+    }
+    landingRactive.set('currentSkillOrder', []);
+    landingRactive.set('finishedSkillOrder', false);
+    landingRactive.set('skillOrder', skillOrder);
+    landingRactive.set('selectedLevel', 1);
+}
+
+function getTimesLeveled(landingRactive, skill){
+    var currentOrder = landingRactive.get('currentSkillOrder');
+    var counter = 0;
+    currentOrder.forEach(function(s){
+        if(s == skill){
+            counter++;
+        }
+    });
+    return counter;
 }
 
 function getBaseStats(championStats){
