@@ -700,6 +700,13 @@ function resetSkillOrder(landingRactive){
     if(["Jayce", "Nidalee", "Elise"].indexOf(champion.name) != -1){
         landingRactive.set('ultPoints', 1);
     }
+    if(champion.name == "Zilean"){
+        skillOrder[1][1].selectable = false;
+    }
+    if(champion.name == "Azir"){
+        skillOrder[1][0].selectable = false;
+        skillOrder[1][2].selectable = false;
+    }
     landingRactive.set('currentSkillOrder', []);
     landingRactive.set('finishedSkillOrder', false);
     landingRactive.set('skillOrder', skillOrder);
