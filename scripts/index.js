@@ -67,7 +67,9 @@ $(document).ready(function(){
             stats:stats,
             statToVariable:statToVariable,
             championLevel:1,
-            levels:levels
+            levels:levels,
+            tabs:['Stats','Items','Abilities'],
+            tabindex:0
         }
     });
     var key;
@@ -243,6 +245,10 @@ $(document).ready(function(){
                 landingRactive.set('runePageSelectorActive', !landingRactive.get('runePageSelectorActive'));
             }
         }
+    });
+
+    landingRactive.on('selectTab', function(event, index){
+        landingRactive.set('tabindex', index);
     });
 
     landingRactive.on('selectRunePage', function(event, runePage){

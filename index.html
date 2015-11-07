@@ -243,7 +243,7 @@
         width:30px;
         border-radius:5px;
         height:30px;
-        border:1px solid white;
+        border:1px solid rgba(256,256,256,0.3);
     }
 
     .skillPointContainer.selected.selectable{
@@ -516,30 +516,19 @@
                 <div style="width:800px; position:relative;">
                     <div style="width:80px; vertical-align:top; position:absolute; top:10px; left:-82px; display:inline-block;">
                         <table style="border-spacing:0;">
+                            {{#each tabs:i}}
                             <tr>
                                 <td>
-                                    <div class="tab selected">
-                                        Stats
+                                    <div class="tab {{tabindex == i ? 'selected' : ''}}" on-click="selectTab:{{i}}">
+                                        {{.}}
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div class="tab">
-                                        Items
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="tab">
-                                        Abilities
-                                    </div>
-                                </td>
-                            </tr>
+                            {{/each}}
                         </table>
                     </div>
                     <div align="center" id="main-display">
+                        {{#if tabs[tabindex] == 'Stats'}}
                         <div style="margin-top:10px; font-size:14px; color:white;">Spells</div>
                         <div style="width:280px;border-radius:10px; {{!selectedChampion ? 'height:60px;' : 'padding-bottom:2px;'}} border:1px solid white;">
                             {{#if !selectedChampion}}
@@ -572,51 +561,6 @@
                                 {{/each}}
                             </table>
                             </div>
-                        </div>
-                        <div style="position:relative; margin-top:10px; width:700px; height:200px; border-radius:5px; margin-bottom:10px; border:1px solid white; padding:10px 0;">
-                            {{#if selectedChampion}}
-                            <table>
-                                <tr>
-                                    <th>
-
-                                    </th>
-                                    {{#each levels}}
-                                    <td>
-                                        <div align="center" style="font-size:16px; color:white;">{{.}}</div>
-                                    </td>
-                                    {{/each}}
-                                </tr>
-                                {{#each selectedChampion.modifiedSpells[0]:i}}
-                                <tr>
-                                    <td>
-                                        <div style="width:30px; height:30px; text-align:center; border-radius:5px; border:1px solid white; position:relative;">
-                                            <img style="border-radius:5px;" src="{{"http://ddragon.leagueoflegends.com/cdn/5.21.1/img/spell/" + image.full}}" width=30 height=30>
-                                            <div style="font-weight:600; position:absolute; top:3px; {{i <= 1 ? 'left:6px;' : 'left:8px;'}} z-index: 500; font-size:20px; color:white; text-shadow:2px 2px black;">{{keybindings[i]}}</div>
-                                        </div>
-                                    </td>
-                                    {{#each levels}}
-                                    <td>
-                                        <div on-click="levelSkill:{{this}},{{i}}" class="skillPointContainer {{this == selectedLevel ? 'selected' : ''}} {{this==selectedLevel && skillOrder[selectedLevel][i].selectable ? 'selectable' : ''}}" style="{{this == selectedLevel ? '' : 'cursor:default;'}}">
-                                            {{#if skillOrder[this][i].selected}}
-                                                <div class="skillPoint"></div>
-                                            {{/if}}
-                                        </div>
-                                    </td>
-                                    {{/each}}
-                                </tr>
-                                {{/each}}
-                            </table>
-                            <div align="center" id="skillOrderButtons">
-                                <div class="button {{finishedSkillOrder ? '' : 'unfinished'}}" id="confirmSkillOrder">
-                                    Ok
-                                </div>
-                                <div on-click="resetSkillOrder" class="button" id="resetSkillOrder">
-                                    Reset
-                                </div>
-                            </div>
-                            {{else}}
-                                <div style="font-size:36px; color:rgba(256,256,256,0.5); margin-top:80px;">No Champion Selected</div>
-                            {{/if}}
                         </div>
                         <div style="margin-top:10px; margin-bottom:10px; border:1px solid white; width:360px; border-radius:10px;">
                             <table>
@@ -670,6 +614,56 @@
                                 </tr>
                             </table>
                         </div>
+                        {{/if}}
+                        {{#if tabs[tabindex] == 'Abilities'}}
+                        <div style="position:relative; margin-top:10px; width:700px; height:200px; border-radius:5px; margin-bottom:10px; border:1px solid white; padding:10px 0;">
+                            {{#if selectedChampion}}
+                            <table>
+                                <tr>
+                                    <th>
+
+                                    </th>
+                                    {{#each levels}}
+                                    <td>
+                                        <div align="center" style="font-size:16px; color:white;">{{.}}</div>
+                                    </td>
+                                    {{/each}}
+                                </tr>
+                                {{#each selectedChampion.modifiedSpells[0]:i}}
+                                <tr>
+                                    <td>
+                                        <div style="width:30px; height:30px; text-align:center; border-radius:5px; border:1px solid white; position:relative;">
+                                            <img style="border-radius:5px;" src="{{"http://ddragon.leagueoflegends.com/cdn/5.21.1/img/spell/" + image.full}}" width=30 height=30>
+                                            <div style="font-weight:600; position:absolute; top:3px; {{i <= 1 ? 'left:6px;' : 'left:8px;'}} z-index: 500; font-size:20px; color:white; text-shadow:2px 2px black;">{{keybindings[i]}}</div>
+                                        </div>
+                                    </td>
+                                    {{#each levels}}
+                                    <td>
+                                        <div on-click="levelSkill:{{this}},{{i}}" class="skillPointContainer {{this == selectedLevel ? 'selected' : ''}}
+                                        {{this==selectedLevel && skillOrder[selectedLevel][i].selectable ? 'selectable' : ''}}"
+                                        style="{{skillOrder[this][i].selected ? 'border:1px solid white;' : ''}} {{this == selectedLevel ? '' : 'cursor:default;'}}">
+                                            {{#if skillOrder[this][i].selected}}
+                                                <div class="skillPoint"></div>
+                                            {{/if}}
+                                        </div>
+                                    </td>
+                                    {{/each}}
+                                </tr>
+                                {{/each}}
+                            </table>
+                            <div align="center" id="skillOrderButtons">
+                                <div class="button {{finishedSkillOrder ? '' : 'unfinished'}}" id="confirmSkillOrder">
+                                    Ok
+                                </div>
+                                <div on-click="resetSkillOrder" class="button" id="resetSkillOrder">
+                                    Reset
+                                </div>
+                            </div>
+                            {{else}}
+                                <div style="font-size:36px; color:rgba(256,256,256,0.5); margin-top:80px;">No Champion Selected</div>
+                            {{/if}}
+                        </div>
+                        {{/if}}
                     </div>
                 </div>
             </div>
