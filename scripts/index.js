@@ -845,13 +845,16 @@ function updateStats(LandingRactive, rune, mastery, items){
     for (var prop in masteryStats){
         switch(stat_type[prop]){
             case "flat":
-                flatStats[prop] = masteryStats[prop];
+                if(flatStats.hasOwnProperty(prop))    flatStats[prop]    += masteryStats[prop];
+                else                                  flatStats[prop]     = masteryStats[prop];
                 break;
             case "%":
-                percentStats[prop] = masteryStats[prop];
+                if(percentStats.hasOwnProperty(prop)) percentStats[prop] += masteryStats[prop];
+                else                                  percentStats[prop]  = masteryStats[prop];
                 break;
             case "level":
-                levelStats[prop] = masteryStats[prop];
+                if(levelStats.hasOwnProperty(prop))   levelStats[prop]   += masteryStats[prop];
+                else                                  levelStats[prop]    = masteryStats[prop];
                 break;
         }
     }
@@ -859,13 +862,16 @@ function updateStats(LandingRactive, rune, mastery, items){
     for (var prop in runeStats){
         switch(stat_type[prop]){
             case "flat":
-                flatStats[prop] = runeStats[prop];
+                if(flatStats.hasOwnProperty(prop))    flatStats[prop]    += runeStats[prop];
+                else                                  flatStats[prop]     = runeStats[prop];
                 break;
             case "%":
-                percentStats[prop] = runeStats[prop];
+                if(percentStats.hasOwnProperty(prop)) percentStats[prop] += runeStats[prop];
+                else                                  percentStats[prop]  = runeStats[prop];
                 break;
             case "level":
-                levelStats[prop] = runeStats[prop];
+                if(levelStats.hasOwnProperty(prop))   levelStats[prop]   += runeStats[prop];
+                else                                  levelStats[prop]    = runeStats[prop];
                 break;
         }
     }
@@ -874,13 +880,16 @@ function updateStats(LandingRactive, rune, mastery, items){
     for (var prop in itemStats){
         switch(stat_type[prop]){
             case "flat":
-                flatStats[prop] = itemStats[prop];
+                if(flatStats.hasOwnProperty(prop))    flatStats[prop]    += itemStats[prop];
+                else                                  flatStats[prop]     = itemStats[prop];
                 break;
             case "%":
-                percentStats[prop] = itemStats[prop];
+                if(percentStats.hasOwnProperty(prop)) percentStats[prop] += itemStats[prop];
+                else                                  percentStats[prop]  = itemStats[prop];
                 break;
             case "level":
-                levelStats[prop] = itemStats[prop];
+                if(levelStats.hasOwnProperty(prop))   levelStats[prop]   += itemStats[prop];
+                else                                  levelStats[prop]    = itemStats[prop];
                 break;
         }
     }
