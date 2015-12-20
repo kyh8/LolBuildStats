@@ -70,7 +70,9 @@ $(document).ready(function(){
             stats:stats,
             statToVariable:statToVariable,
             championLevel:1,
-            levels:levels
+            levels:levels,
+            tabs:['Stats','Items','Abilities'],
+            tabindex:0
         }
     });
     var key;
@@ -249,6 +251,10 @@ $(document).ready(function(){
                 landingRactive.set('runePageSelectorActive', !landingRactive.get('runePageSelectorActive'));
             }
         }
+    });
+
+    landingRactive.on('selectTab', function(event, index){
+        landingRactive.set('tabindex', index);
     });
 
     landingRactive.on('selectRunePage', function(event, runePage){
@@ -705,6 +711,13 @@ function resetSkillOrder(landingRactive){
     }
     if(["Jayce", "Nidalee", "Elise"].indexOf(champion.name) != -1){
         landingRactive.set('ultPoints', 1);
+    }
+    if(champion.name == "Zilean"){
+        skillOrder[1][1].selectable = false;
+    }
+    if(champion.name == "Azir"){
+        skillOrder[1][0].selectable = false;
+        skillOrder[1][2].selectable = false;
     }
     landingRactive.set('currentSkillOrder', []);
     landingRactive.set('finishedSkillOrder', false);
