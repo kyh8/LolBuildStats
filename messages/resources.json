@@ -1,230 +1,6 @@
 {
   "apiKey":"5c074d2c-2626-4c9a-943a-9b232006dcb5",
   "mastery_stats": {
-    "4353" :{
-      "stats": ["rPercentCooldownMod"],
-      "values": [[0.02, 0.035, 0.05]]
-    },
-    "4352" :{
-      "stats": [],
-      "values": [[]]
-    },
-    "4253": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4113": {
-      "stats": ["rPercentCooldownMod"],
-      "values": [[ 0.0125, 0.025, 0.0375, 0.05]]
-    },
-    "4251": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4112": {
-      "stats": ["PercentAttackSpeedMod"],
-      "values": [[0.0125, 0.025, 0.0375, 0.05]]
-    },
-    "4252": {
-      "stats": ["PercentArmorMod", "PercentSpellBlockMod"],
-      "values": [[0.025, 0.05, 0.075, 0.1],[0.025, 0.05, 0.075, 0.1]]
-    },
-    "4111": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4152": {
-      "stats": ["rPercentArmorPenetrationMod", "rPercentMagicPenetrationMod"],
-      "values": [[0.02, 0.04, 0.06],[0.02, 0.04, 0.06]]
-    },
-    "4212": {
-      "stats": ["FlatHPRegenMod"],
-      "values": [[1,2]]
-    },
-    "4211": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4151": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4154": {
-      "string": [],
-      "values": [[]]
-    },
-    "4314": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4313": {
-      "stats": ["FlatMPPoolMod"],
-      "values": [[25, 50, 75]]
-    },
-    "4362": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4312": {
-      "stats": ["PercentMovementSpeedMod"],
-      "values": [[0.005, 0.01, 0.015]]
-    },
-    "4213": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4214": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4114": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4122": {
-      "stats": ["rFlatPhysicalDamageModPerLevel"],
-      "values": [[0.22, 0.39, 0.55]]
-    },
-    "4121": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4124": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4262": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4123": {
-      "stats": ["rFlatMagicDamageModPerLevel"],
-      "values": [[0.33, 0.66, 0.89]]
-    },
-    "4221": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4162": {
-      "stats": ["PercentIncreaseDamage"],
-      "values": [[0.03]]
-    },
-    "4222": {
-      "stats": ["FlatHPPoolMod"],
-      "values": [[12, 24, 36]]
-    },
-    "4322": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4333": {
-      "stats": ["PercentSpellVampMod", "PercentLifeStealMod"],
-      "values": [[0.01, 0.02, 0.03],[0.01, 0.02, 0.03]]
-    },
-    "4332": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4224": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4331": {
-      "stats": ["rFlatGoldPer10Mod"],
-      "values": [[0.5, 1, 1.5]]
-    },
-    "4134": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4132": {
-      "stats": "FlatPhysicalDamageMod",
-      "values": [[4]]
-    },
-    "4133": {
-      "stats": ["FlatMagicDamageMod"],
-      "values": [[6]]
-    },
-    "4234": {
-      "stats": ["FlatSpellBlockMod"],
-      "values": [[2, 3.5, 5]]
-    },
-    "4131": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4233": {
-      "stats": "FlatArmorMod",
-      "values": [[2, 3.5, 5]]
-    },
-    "4232": {
-      "stats":["PercentHPPoolMod"],
-      "values": [[0.03]]
-    },
-    "4323": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4231": {
-      "stats": ["Tenacity"],
-      "description": [[0.1]]
-    },
-    "4324": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4342": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4341": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4344": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4343": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4143": {
-      "stats": ["PercentMagicDamageMod"],
-      "values": [[0.02, 0.035, 0.05]]
-    },
-    "4144": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4241": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4243": {
-      "stats": ["PercentCritReduceMod"],
-      "values": [[0.1]]
-    },
-    "4334": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4242": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4141": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4244": {
-      "stats": [],
-      "values": [[]]
-    },
-    "4142": {
-      "stats": ["PercentPhysicalDamageMod"],
-      "values": [[0.02, 0.035, 0.05]]
-    },
     "6121": {
       "stats": ["ADDITIONAL_DMG"],
       "values": [["0.03"],[0.02]]
@@ -520,7 +296,12 @@
     "rPercentMagicPenetrationModPerLevel" : "level",
     "rPercentMovementSpeedModPerLevel" : "level",
     "rPercentTimeDeadMod" : "%",
-    "rPercentTimeDeadModPerLevel" : "level"
+    "rPercentTimeDeadModPerLevel" : "level",
+    "ABILITY_DAMAGE" : "CUSTOM_PROP",
+    "BONUS_ARMOR" : "CUSTOM_PROP",
+    "BONUS_MR" : "CUSTOM_PROP",
+    "MAX_CDR" : "CUSTOM_PROP",
+    "ADDITIONAL_DMG" : "CUSTOM_PROP"
   },
   "level_to_other": {
     "rFlatArmorModPerLevel" : "rFlatArmorMod",
@@ -546,33 +327,33 @@
     "rPercentTimeDeadModPerLevel" : "rPercentTimeDeadMod"
   },
   "flat_to_stat" : {
-    "FlatArmorMod" : "armor",
-    "FlatAttackSpeedMod" : "attackspeed",
-    "FlatCritChanceMod" : "crit",
-    "FlatHPPoolMod" : "hp",
-    "FlatHPRegenMod" : "hpregen",
-    "FlatMPPoolMod" : "mp",
-    "FlatMPRegenMod" : "mpregen",
-    "FlatMagicDamageMod" : "abilitypower",
-    "FlatMovementSpeedMod" : "movespeed",
-    "FlatPhysicalDamageMod" : "attackdamage",
-    "FlatSpellBlockMod" : "spellblock",
-    "PercentSpellVampMod" : "spellvamp",
-    "PercentLifeStealMod" : "lifesteal",
-    "rFlatArmorPenetrationMod" : "apen",
-    "rFlatMagicPenetrationMod" : "mpen",
-    "rPercentCooldownMod" : "cdr",
-    "Tenacity" : "tenacity",
-    "rFlatTimeDeadMod" : "",
-    "PercentAttackSpeedMod" : "attackspeed",
-    "PercentCritChanceMod" : "crit",
-    "PercentCritDamageMod" : "",
-    "rFlatGoldPer10Mod" : "",
-    "FlatEnergyPoolMod" : "mp",
-    "FlatEnergyRegenMod" : "mpregen",
-    "FlatCritDamageMod" : "",
-    "FlatBlockMod" : "",
-    "FlatEXPBonus" : ""
+    "FlatArmorMod" :              "armor",
+    "FlatAttackSpeedMod" :        "attackspeed",
+    "FlatCritChanceMod" :         "crit",
+    "FlatHPPoolMod" :             "hp",
+    "FlatHPRegenMod" :            "hpregen",
+    "FlatMPPoolMod" :             "mp",
+    "FlatMPRegenMod" :            "mpregen",
+    "FlatMagicDamageMod" :        "abilitypower",
+    "FlatMovementSpeedMod" :      "movespeed",
+    "FlatPhysicalDamageMod" :     "attackdamage",
+    "FlatSpellBlockMod" :         "spellblock",
+    "PercentSpellVampMod" :       "spellvamp",
+    "PercentLifeStealMod" :       "lifesteal",
+    "rFlatArmorPenetrationMod" :  "apen",
+    "rFlatMagicPenetrationMod" :  "mpen",
+    "rPercentCooldownMod" :       "cdr",
+    "Tenacity" :                  "tenacity",
+    "rFlatTimeDeadMod" :           "",
+    "PercentAttackSpeedMod" :     "attackspeed",
+    "PercentCritChanceMod" :      "crit",
+    "PercentCritDamageMod" :      "",
+    "rFlatGoldPer10Mod" :         "",
+    "FlatEnergyPoolMod" :         "mp",
+    "FlatEnergyRegenMod" :        "mpregen",
+    "FlatCritDamageMod" :         "",
+    "FlatBlockMod" :              "",
+    "FlatEXPBonus" :              ""
   },
   "tags": [
     ["CooldownReduction", "CDR"],
