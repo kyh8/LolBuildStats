@@ -295,11 +295,11 @@
     },
     "6352": {
       "stats": ["MAX_CDR", "rPercentCooldownMod"],
-      "values": [[0.41, 0.42, 0.43, 0.44, 0.45][0.01, 0.02, 0.03, 0.04, 0.05]]
+      "values": [[0.41, 0.42, 0.43, 0.44, 0.45],[0.01, 0.02, 0.03, 0.04, 0.05]]
     },
     "6351": {
-      "stats": ["rPercentArmorPenetration",  "rPercentArmorPenetrationModPerLevel", , "rPercentMagicPenetrationMod", "rPercentMagicPenetrationModPerLevel"],
-      "values": [[1, 2, 3, 4 , 5],[0.1, 0.2, 0.3, 0.4, 0.5],[0.6, 1.2, 1.8, 2.4, 3.0],[0.06, 0.12, 0.18, 0.25, 0.3]],
+      "stats": ["rPercentArmorPenetration",  "rPercentArmorPenetrationModPerLevel", "rPercentMagicPenetrationMod", "rPercentMagicPenetrationModPerLevel"],
+      "values": [[1, 2, 3, 4 , 5],[0.1, 0.2, 0.3, 0.4, 0.5],[0.6, 1.2, 1.8, 2.4, 3.0],[0.06, 0.12, 0.18, 0.25, 0.3]]
     },
     "6212": {
       "stats": ["BONUS_ARMOR", "BONUS_MR"],
