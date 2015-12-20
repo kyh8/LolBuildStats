@@ -828,6 +828,7 @@ function updateStats(LandingRactive, rune, mastery, items){
     console.log('attackspeed post per level');
     console.log(champStats['attackspeed']);
 
+    /* should this be contains / += ?? */
     for (var prop in masteryStats){
         switch(stat_type[prop]){
             case "flat":
