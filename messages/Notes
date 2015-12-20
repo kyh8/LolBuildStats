@@ -1,0 +1,15 @@
+Mastery 6352:
+	Increases max cdr with rank
+	created MAX_CDR
+Master 6121:
+	Increases additonal damage dealt
+	created ADDITIONAL_DMG
+Mastery 6212:
+	Bonus Armor and MR %
+	BONUS_ARMOR
+	BOMUS_MR
+Mastery 6114
+	Ability damage
+	ABILITY_DAMAGE
+Mastery 6251
+	% Tenacity -> it should be straight tenacity, since its all % (just add it on)
