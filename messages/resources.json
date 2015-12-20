@@ -320,7 +320,6 @@
     "6114": {
       "stats": ["ABILITY_DAMAGE"],
       "values": [[0.04, 0.08, 0.12, 0.16, 0.2]]
-      "id": 6114,
     },
     "6151": {
       "stats": ["rPercentArmorPenetrationMod"],

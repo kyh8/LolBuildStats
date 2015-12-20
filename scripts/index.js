@@ -75,6 +75,7 @@ $(document).ready(function(){
             tabindex:0
         }
     });
+
     var key;
     var CHAMPS_PER_ROW = 8;
     var resources = $.getJSON('messages/resources.json');
@@ -85,6 +86,9 @@ $(document).ready(function(){
     var masteryTree = {};
 
     $.when(resources).done(function(r) {
+        console.log("test: ");
+        console.log(r.apiKey);
+
         key = r.apiKey;
         mastery_stats = r.mastery_stats;
         modVariables = r.stat_english;
